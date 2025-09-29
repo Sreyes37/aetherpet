@@ -3,1594 +3,709 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AetherPet</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <title>Eco-Shift</title>
     <style>
         body {
-            font-family: 'VT323', monospace;
-            touch-action: manipulation;
-        }
-        .pixelated {
-            image-rendering: -moz-crisp-edges;
-            image-rendering: -webkit-crisp-edges;
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
-        }
-        .stat-bar-container {
-            background-color: #718096; /* gray-600 */
-            border: 4px solid #1a202c; /* gray-900 */
-            border-radius: 8px;
+            margin: 0;
             overflow: hidden;
-        }
-        .stat-bar {
-            transition: width 0.5s ease-in-out;
-        }
-        .btn-pixel {
-            border: 4px solid #1a202c;
-            border-radius: 8px;
-            box-shadow: 4px 4px 0px #1a202c;
-            transition: all 0.1s ease-in-out;
-            transform: translate(0, 0);
-            position: relative;
-        }
-        .btn-pixel:active {
-            box-shadow: 0px 0px 0px #1a202c;
-            transform: translate(4px, 4px);
-        }
-        .btn-pixel.disabled {
-            background-color: #4a5568;
-            box-shadow: 4px 4px 0px #2d3748;
-            cursor: not-allowed;
-        }
-        .dirt {
-            position: absolute;
-            width: 30px;
-            height: 20px;
-            background-color: #784c1c;
-            border-radius: 50%;
-            opacity: 0.8;
-            cursor: pointer;
-        }
-        
-        /* === ANIMACIONES MEJORADAS === */
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .bouncing { animation: bounce 0.5s ease-in-out; }
-
-        @keyframes jump { 0%, 100% { transform: translateY(0) scale(1,1); } 50% { transform: translateY(-20px) scale(0.9, 1.1); } 75% { transform: translateY(5px) scale(1.1, 0.9); } }
-        .jump-animation { animation: jump 0.6s ease-in-out; }
-        
-        @keyframes annoyed-shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); } 20%, 40%, 60%, 80% { transform: translateX(3px); } }
-        .annoyed-animation { animation: annoyed-shake 0.4s ease-in-out; }
-
-        @keyframes shake { 0%{transform:translate(1px,1px) rotate(0)}10%{transform:translate(-1px,-2px) rotate(-1deg)}20%{transform:translate(-3px,0) rotate(1deg)}30%{transform:translate(3px,2px) rotate(0)}40%{transform:translate(1px,-1px) rotate(1deg)}50%{transform:translate(-1px,2px) rotate(-1deg)}60%{transform:translate(-3px,1px) rotate(0)}70%{transform:translate(3px,1px) rotate(-1deg)}80%{transform:translate(-1px,-1px) rotate(1deg)}90%{transform:translate(1px,2px) rotate(0)}100%{transform:translate(1px,-2px) rotate(-1deg)} }
-        .shaking { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; } /* Not infinite for hatching */
-        .sick-shaking { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both infinite; }
-        
-        @keyframes idleBreathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.02, 1.05); } }
-        .idle-animation { animation: idleBreathe 2.5s ease-in-out infinite; }
-        
-        @keyframes petted { 0%, 100% { transform: scale(1, 1); } 20% { transform: scale(1.1, 0.9) translateY(5px); } 50% { transform: scale(0.95, 1.05); } }
-        .petted-animation { animation: petted 0.5s ease-in-out; }
-        
-        #pet-display .eye { animation: blink 5s infinite; }
-        @keyframes blink { 0%, 95%, 100% { transform-origin: center; transform: scaleY(1); } 97.5% { transform-origin: center; transform: scaleY(0.1); } }
-        
-        #pet-display {
-            position: absolute;
-            /* Transition is now set dynamically in JS */
-        }
-        
-        #thought-bubble {
-            position: absolute;
-            background-color: white;
-            color: black;
-            padding: 4px 10px;
-            border-radius: 16px;
-            border: 3px solid black;
-            font-size: 1.5rem;
-            line-height: 1.2;
-            text-align: center;
-            max-width: 140px; /* Increased max-width for news */
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out;
-            z-index: 20;
-            top: -45px; 
-            left: 50%;
-            transform: translateX(-50%);
-            white-space: normal;
-        }
-        #thought-bubble.visible {
-            opacity: 1;
-            visibility: visible;
-        }
-        #thought-bubble::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border-left: 10px solid transparent;
-            border-right: 10px solid transparent;
-            border-top: 15px solid white;
-        }
-        /* ========================== */
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.6);
-            align-items: center;
+            display: flex;
             justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #0c0c0c;
+            font-family: 'Consolas', 'Courier New', monospace;
+            color: white;
+            -webkit-user-select: none; /* Evitar selección de texto */
+            -ms-user-select: none;
+            user-select: none;
         }
-        .modal-content {
-            position: relative;
-            padding: 20px;
-            width: 90%;
-            max-width: 600px;
-        }
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #pet-display svg {
-            width: 150px;
-            height: 150px;
-            filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.5));
-            overflow: visible; /* To allow coat to be visible */
-        }
-        #pet-habitat {
-            background: linear-gradient(to bottom, #a7f3d0, #6ee7b7);
-            transition: background 1s ease-in-out;
-        }
-        .rain {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 2;
-            pointer-events: none;
-        }
-        .rain .stem {
-            position: absolute;
-            width: 2px;
-            height: 20px;
-            background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.4));
-            animation: rain-anim 0.5s linear infinite;
-        }
-        @keyframes rain-anim {
-            from { transform: translateY(-20px); }
-            to { transform: translateY(260px); }
-        }
-
-        .chat-message { padding: 8px 12px; border-radius: 12px; margin-bottom: 8px; max-width: 80%; }
-        .user-message { background-color: #4A5568; align-self: flex-end; }
-        .pet-message { background-color: #2D3748; align-self: flex-start; position: relative; padding-left: 28px; }
-        .pet-message .ai-icon { position: absolute; left: 6px; top: 8px; font-size: 1rem; }
-        .typing-indicator span {
-            height: 8px;
-            width: 8px;
-            background-color: #90CDF4;
-            display: inline-block;
-            border-radius: 50%;
-            animation: bounce-typing 1.4s infinite ease-in-out both;
-        }
-        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes bounce-typing {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-
-        #ai-selector .btn-pixel.active {
-             background-color: #90CDF4;
-             color: #1a202c;
-             box-shadow: 0px 0px 0px #1a202c;
-             transform: translate(2px, 2px);
-        }
-
-        .card { width: 60px; height: 60px; perspective: 1000px; cursor: pointer; }
-        .card-inner { position: relative; width: 100%; height: 100%; transition: transform 0.6s; transform-style: preserve-3d; }
-        .card.flipped .card-inner { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; border-radius: 8px; border: 4px solid #1a202c; }
-        .card-front { background-color: #4a5568; }
-        .card-back { background-color: #a0aec0; transform: rotateY(180deg); }
-        .card.matched .card-back { background-color: #68d391; }
-
-        .bug-catcher-hole {
-            width: 70px;
-            height: 70px;
-            background-color: #6B463C;
-            border-radius: 50%;
-            position: relative;
-            overflow: hidden;
-            border: 5px solid #A0522D;
-        }
-        .bug-catcher-bug {
-            font-size: 2.5rem;
-            position: absolute;
-            bottom: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            transition: bottom 0.2s ease-in-out;
+        canvas {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(76, 209, 255, 0.5);
+            border: 2px solid rgba(76, 209, 255, 0.8);
             cursor: pointer;
-        }
-        .bug-catcher-bug.up {
-            bottom: 0px;
-        }
-        
-        #star-game-canvas {
-            background-color: #0c0a1a;
-            cursor: crosshair;
         }
     </style>
 </head>
-<body class="bg-gray-800 text-white flex items-center justify-center min-h-screen">
+<body>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <script>
+    // ===================================================================================
+    // CONFIGURACIÓN INICIAL Y ESTADOS DEL JUEGO
+    // ===================================================================================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
 
-    <div id="game-container" class="w-full max-w-sm mx-auto bg-gray-700 p-4 rounded-2xl border-4 border-black shadow-lg">
+    let score = 0, highScore = 0, frameCount = 0;
+    let gameState = 'start'; // 'start', 'shop', 'playing', 'bossFight', 'victory', 'gameOver'
+    const GRAVITY = 0.4, JUMP_STRENGTH = -8, PARTICLE_DISTANCE = 40;
+    const BOSS_TRIGGER_SCORE = 30;
 
-        <!-- STATS DISPLAY -->
-        <div class="grid grid-cols-5 gap-2 mb-4 text-center">
-            <div>❤️<div class="stat-bar-container"><div id="health-bar" class="stat-bar bg-red-500 h-4"></div></div></div>
-            <div>⚡<div class="stat-bar-container"><div id="energy-bar" class="stat-bar bg-yellow-400 h-4"></div></div></div>
-            <div>😊<div class="stat-bar-container"><div id="happiness-bar" class="stat-bar bg-green-500 h-4"></div></div></div>
-            <div>🍖<div class="stat-bar-container"><div id="hunger-bar" class="stat-bar bg-orange-500 h-4"></div></div></div>
-            <div>✨<div class="stat-bar-container"><div id="cleanliness-bar" class="stat-bar bg-blue-400 h-4"></div></div></div>
-        </div>
-
-        <!-- PET DISPLAY -->
-        <div id="pet-habitat" class="relative w-full h-64 rounded-lg border-4 border-black mb-4 flex items-center justify-center overflow-hidden">
-             <div id="background-display" class="absolute inset-0 z-0"></div>
-             <div id="pet-display" class="z-10 pixelated cursor-pointer">
-                <div id="thought-bubble-container" class="relative w-full">
-                    <div id="thought-bubble"></div>
-                </div>
-             </div>
-             <div id="pet-name" class="absolute top-2 left-2 text-black bg-white/50 px-2 rounded">AetherPet</div>
-             <div id="age-display" class="absolute top-2 right-2 text-black bg-white/50 px-2 rounded">Edad: 0</div>
-             <div id="weather-display" class="absolute bottom-2 left-2 text-4xl"></div>
-             <div id="decoration-container" class="absolute inset-0 z-5 pointer-events-none"></div>
-        </div>
-
-        <!-- NOTIFICATION AREA -->
-        <div id="notification-area" class="text-center h-6 mb-2 text-yellow-300"></div>
-
-        <!-- INTERACTION BUTTONS -->
-        <div id="interaction-buttons" class="grid grid-cols-3 gap-2">
-            <button id="feed-btn" class="btn-pixel bg-orange-500 p-3">🍖 Alimentar</button>
-            <button id="sleep-btn" class="btn-pixel bg-indigo-500 p-3">🌙 Dormir</button>
-            <button id="play-btn" class="btn-pixel bg-green-500 p-3">🕹️ Jugar</button>
-            <button id="care-btn" class="btn-pixel bg-pink-500 p-3">💖 Cuidados</button>
-            <button id="shop-btn" class="btn-pixel bg-yellow-500 p-3">🛒 Tienda</button>
-            <button id="story-btn" class="btn-pixel bg-cyan-500 p-3">📖 Cuento ✨</button>
-            <div class="col-span-3">
-                 <button id="chat-btn" class="btn-pixel bg-purple-500 p-3 w-full">💬 Chatear ✨</button>
-            </div>
-        </div>
-        <div id="sleep-buttons" class="hidden grid grid-cols-2 gap-2">
-             <button id="wakeup-btn" class="btn-pixel bg-yellow-400 p-3">☀️ Despertar</button>
-             <button id="dream-btn" class="btn-pixel bg-teal-500 p-3">🌙 Soñar ✨</button>
-        </div>
-         <!-- CURRENCY DISPLAY -->
-        <div class="text-center mt-4 text-2xl">
-            <span id="currency-display">0</span> Fragmentos de Éter
-        </div>
-    </div>
-
-    <!-- MODALS -->
-    <div id="shop-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black">
-            <h2 class="text-3xl text-center mb-4">Tienda</h2>
-            <div id="shop-items" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
-            <button id="close-shop-btn" class="btn-pixel bg-red-500 p-3 mt-6 w-full">Cerrar</button>
-        </div>
-    </div>
-    
-    <div id="minigame-selection-modal" class="modal">
-         <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <h2 class="text-3xl mb-4">Elige un Juego</h2>
-            <div class="flex flex-col gap-4">
-                <button id="fruit-game-btn" class="btn-pixel bg-green-500 p-4">🍎 Atrapa la Fruta</button>
-                <button id="memory-game-btn" class="btn-pixel bg-blue-500 p-4">🧠 Juego de Memoria</button>
-                <button id="car-game-btn" class="btn-pixel bg-red-500 p-4">🚗 Carrera Etérea</button>
-                <button id="bug-game-btn" class="btn-pixel bg-yellow-600 p-4">🐞 Atrapa el Bicho</button>
-                <button id="star-game-btn" class="btn-pixel bg-indigo-600 p-4">✨ Une las Estrellas</button>
-            </div>
-             <button id="close-selection-btn" class="btn-pixel bg-red-500 p-3 mt-6 w-full">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="care-modal" class="modal">
-         <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <h2 class="text-3xl mb-4">Kit de Cuidados</h2>
-            <div class="flex justify-center gap-4">
-                <button id="brush-btn" class="btn-pixel bg-blue-400 p-4 text-4xl">🖌️</button>
-                <button id="sponge-btn" class="btn-pixel bg-yellow-400 p-4 text-4xl">🧼</button>
-                <button id="medicine-btn" class="btn-pixel bg-red-500 p-4 text-4xl">💊</button>
-            </div>
-             <button id="close-care-btn" class="btn-pixel bg-gray-500 p-3 mt-6 w-full">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- MINIGAME MODALS -->
-    <div id="minigame-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <div class="flex justify-between items-center mb-4">
-                 <h2 class="text-3xl">¡Atrapa la Fruta!</h2>
-                 <button class="game-exit-btn btn-pixel bg-gray-400 px-2">X</button>
-            </div>
-            <p class="mb-4">Mueve el ratón o desliza para controlar la cesta. ¡No atrapes las bombas!</p>
-            <canvas id="minigame-canvas" class="bg-blue-300 border-2 border-black rounded-lg"></canvas>
-            <button id="start-game-btn" class="btn-pixel bg-green-500 p-3 mt-4 w-full">Empezar Juego</button>
-        </div>
-    </div>
-
-    <div id="memory-game-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-             <div class="flex justify-between items-center mb-2">
-                <h2 class="text-3xl">Juego de Memoria</h2>
-                <button class="game-exit-btn btn-pixel bg-gray-400 px-2">X</button>
-            </div>
-            <div class="flex justify-between items-center mb-4">
-                <div id="memory-timer" class="text-2xl">Tiempo: 30</div>
-                <div id="memory-pairs" class="text-2xl">Pares: 0/6</div>
-            </div>
-            <div id="memory-game-board" class="grid grid-cols-4 gap-2 justify-center"></div>
-            <button id="start-memory-game-btn" class="btn-pixel bg-blue-500 p-3 mt-4 w-full">Empezar Juego</button>
-        </div>
-    </div>
-
-    <div id="car-game-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-3xl">Carrera Etérea</h2>
-                <button class="game-exit-btn btn-pixel bg-gray-400 px-2">X</button>
-            </div>
-            <p class="mb-4">Usa las flechas ⬅️ y ➡️ para moverte. ¡Coge el escudo 🛡️!</p>
-            <canvas id="car-game-canvas" class="bg-gray-500 border-2 border-black rounded-lg"></canvas>
-            <button id="start-car-game-btn" class="btn-pixel bg-red-500 p-3 mt-4 w-full">Empezar Carrera</button>
-        </div>
-    </div>
-
-    <div id="bug-catcher-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-             <div class="flex justify-between items-center mb-2">
-                <h2 class="text-3xl">Atrapa el Bicho</h2>
-                <button class="game-exit-btn btn-pixel bg-gray-400 px-2">X</button>
-            </div>
-             <div class="flex justify-between items-center mb-4">
-                <div id="bug-timer" class="text-2xl">Tiempo: 20</div>
-                <div id="bug-score" class="text-2xl">Puntos: 0</div>
-            </div>
-            <div id="bug-catcher-board" class="grid grid-cols-3 gap-4 justify-center bg-green-400 p-4 rounded-lg"></div>
-            <button id="start-bug-game-btn" class="btn-pixel bg-yellow-600 p-3 mt-4 w-full">Empezar a Cazar</button>
-        </div>
-    </div>
-
-     <div id="star-game-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <div class="flex justify-between items-center mb-2">
-                <h2 class="text-3xl">Une las Estrellas</h2>
-                <button class="game-exit-btn btn-pixel bg-gray-400 px-2">X</button>
-            </div>
-            <p id="star-game-message" class="mb-4">Copia la constelación que aparece a la izquierda.</p>
-            <div class="flex justify-center gap-4">
-                 <canvas id="star-example-canvas" class="border-2 border-black rounded-lg"></canvas>
-                 <canvas id="star-game-canvas" class="border-2 border-black rounded-lg"></canvas>
-            </div>
-            <button id="start-star-game-btn" class="btn-pixel bg-indigo-600 p-3 mt-4 w-full">Nueva Constelación</button>
-        </div>
-    </div>
-
-    <!-- CHAT & DREAM & STORY MODALS -->
-    <div id="chat-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black flex flex-col h-[70vh]">
-            <h2 id="chat-title" class="text-3xl text-center mb-2">Hablando con AetherPet</h2>
-            <div id="ai-selector" class="flex justify-center gap-2 mb-4">
-                <button data-ai="gemini" class="ai-btn btn-pixel bg-gray-600 p-2 active">✨ Tierno</button>
-                <button data-ai="openai" class="ai-btn btn-pixel bg-gray-600 p-2">🤖 Curioso</button>
-                <button data-ai="openrouter" class="ai-btn btn-pixel bg-gray-600 p-2">🧠 Juguetón</button>
-            </div>
-            <div id="chat-section" class="flex-1 flex-col flex">
-                <div id="chat-history" class="flex-1 bg-gray-800 p-4 rounded-lg overflow-y-auto flex flex-col"></div>
-                <form id="chat-form" class="mt-4 flex gap-2">
-                    <input type="text" id="chat-input" class="flex-1 p-2 rounded bg-gray-600 border-gray-500 text-white" placeholder="Escribe un mensaje..." autocomplete="off">
-                    <button type="submit" id="send-chat-btn" class="btn-pixel bg-indigo-500 p-3">Enviar</button>
-                </form>
-                 <button id="close-chat-btn" class="btn-pixel bg-red-500 p-3 mt-2 w-full">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="dream-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black text-center">
-            <h2 class="text-3xl mb-4">El Sueño de AetherPet</h2>
-            <div id="dream-content" class="bg-gray-800 p-4 rounded-lg min-h-[100px] flex items-center justify-center"></div>
-            <button id="close-dream-btn" class="btn-pixel bg-red-500 p-3 mt-6 w-full">Cerrar</button>
-        </div>
-    </div>
-
-    <div id="story-modal" class="modal">
-        <div class="modal-content bg-gray-700 rounded-2xl border-4 border-black flex flex-col h-[70vh]">
-            <h2 class="text-3xl text-center mb-4">Hora del Cuento ✨</h2>
-            <div id="story-form-section" class="flex flex-col gap-2">
-                 <p class="text-center">¿Sobre qué quieres que te cuente un cuento?</p>
-                 <input type="text" id="story-topic-input" class="w-full p-2 rounded bg-gray-800 border border-gray-600 text-white" placeholder="Ej: un dragón amigable...">
-                 <button id="generate-story-btn" class="btn-pixel bg-green-500 p-3 mt-2 w-full">Crear Cuento</button>
-            </div>
-            <div id="story-display-section" class="hidden flex-1 flex-col mt-4">
-                <div id="story-content" class="flex-1 bg-gray-800 p-4 rounded-lg overflow-y-auto text-left">
-                    <!-- Story will be appended here -->
-                </div>
-            </div>
-            <button id="close-story-btn" class="btn-pixel bg-red-500 p-3 mt-4 w-full">Cerrar</button>
-        </div>
-    </div>
-
-<script>
-    // =================================================================================
-    // SECTION: CONFIGURACIÓN Y ESTADO INICIAL
-    // =================================================================================
-    const PET_STAGES = { HUEVO: 'Huevo', INFANTE: 'Infante', LUMINOSA: 'Luminosa', TERRENAL: 'Terrenal', SOMBRIA: 'Sombria', ESCAPE: 'Escape' };
-    const WEATHERS = { SUNNY: '☀️', HOT: '🔥', COLD: '❄️', RAINY: '🌧️' };
-
-    let gameState = {
-        pet: {
-            name: "AetherPet",
-            stage: PET_STAGES.HUEVO,
-            age: 0,
-            stats: { health: 100, energy: 100, happiness: 100, hunger: 100, cleanliness: 100 },
-            isSleeping: false,
-            isSick: false,
-            isThinking: false,
-            isWearingCoat: false,
-            hasFan: false,
-            careHistory: { goodCare: 0, regularCare: 0, badCare: 0 },
-            positionX: 50,
-            isMoving: false,
-            thought: null,
-            lastClickTime: 0,
-            clickCount: 0,
-            eggCracks: 0,
-        },
-        weather: WEATHERS.SUNNY,
-        realWorld: {
-            weather: 'Despejado',
-            fact: 'Los pulpos tienen tres corazones.'
-        },
-        currency: 0,
-        dirtPiles: [],
-        ownedItems: [],
-        isGenerating: false,
-        chat: {
-            history: [],
-            currentAI: 'gemini',
-            keys: {
-                gemini: 'AIzaSyAqvRB-Kh8eMeqDG2bM8zG8WkVOrcmXLfY',
-                openai: 'sk-abcdqrstefghuvwxabcdqrstefghuvwxabcdqrst',
-                openrouter: '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'
-            }
-        },
-        isHatching: false
-    };
-
-    const config = {
-        tickRate: 3000, hungerDecay: 2, energyDecay: 1, happinessDecay: 1,
-        cleanlinessDecay: 2, ageIncreaseRate: 10,
-        evolutionToAdultAge: 20,
-        dirtSpawnChance: 0.2,
-        weatherChangeRate: 40,
-        realWorldUpdateRate: 100 
-    };
-    
-    const petSprites = {
-        [PET_STAGES.HUEVO]: `<svg viewBox="0 0 100 100"><g id="egg-group"><path d="M50,10 C75,10 90,40 90,65 C90,95 75,100 50,100 C25,100 10,95 10,65 C10,40 25,10 50,10 Z" fill="#FFFDE7"/></g></svg>`,
-        'Huevo_crack1': `<svg viewBox="0 0 100 100"><g id="egg-group"><path d="M50,10 C75,10 90,40 90,65 C90,95 75,100 50,100 C25,100 10,95 10,65 C10,40 25,10 50,10 Z" fill="#FFFDE7"/><path d="M 50 40 L 55 50 L 52 55 L 60 65" stroke="black" stroke-width="1" fill="none"/></g></svg>`,
-        'Huevo_crack2': `<svg viewBox="0 0 100 100"><g id="egg-group"><path d="M50,10 C75,10 90,40 90,65 C90,95 75,100 50,100 C25,100 10,95 10,65 C10,40 25,10 50,10 Z" fill="#FFFDE7"/><path d="M 50 40 L 55 50 L 52 55 L 60 65 L 55 75" stroke="black" stroke-width="1.5" fill="none"/><path d="M 55 50 L 45 60" stroke="black" stroke-width="1" fill="none"/></g></svg>`,
-        [PET_STAGES.INFANTE]: {
-            happy: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><circle class="eye" cx="35" cy="50" r="9" fill="black"></circle><circle class="eye" cx="65" cy="50" r="9" fill="black"></circle><circle cx="38" cy="47" r="3.5" fill="white"></circle><circle cx="68" cy="47" r="3.5" fill="white"></circle><path d="M40 70 Q50 85 60 70" stroke="black" stroke-width="3" fill="none"></path></g></svg>`,
-            laughing: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><path class="eye" d="M30 55 Q35 48 40 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path class="eye" d="M60 55 Q65 48 70 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path d="M35 70 Q50 90 65 70" stroke="black" stroke-width="3" fill="none"></path></g></svg>`,
-            playful: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><path class="eye" d="M30 55 Q35 48 40 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path class="eye" d="M60 55 Q65 48 70 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path d="M40 70 Q50 85 60 70" stroke="black" stroke-width="3" fill="none"></path><path d="M50 75 C 53 75 55 72 55 70 L 45 70 C 45 72 47 75 50 75" fill="#FF8A80"></path></g></svg>`,
-            neutral: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><circle class="eye" cx="35" cy="50" r="8" fill="black"></circle><circle class="eye" cx="65" cy="50" r="8" fill="black"></circle><circle cx="38" cy="47" r="3" fill="white"></circle><circle cx="68" cy="47" r="3" fill="white"></circle><path d="M45 70 Q50 75 55 70" stroke="black" stroke-width="2" fill="none"></path></g></svg>`,
-            sad: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#D4E6F1"></circle><circle class="eye" cx="35" cy="50" r="7" fill="black"></circle><circle class="eye" cx="65" cy="50" r="7" fill="black"></circle><path d="M45 75 Q50 68 55 75" stroke="black" stroke-width="2" fill="none"></path><path d="M30 60 Q32 65 35 60" fill="#63B3ED"/></g></svg>`,
-            annoyed: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#D4E6F1"></circle><path class="eye" d="M30 45 L40 55" stroke="black" stroke-width="4"></path><path class="eye" d="M60 45 L70 55" stroke="black" stroke-width="4"></path><path d="M45 75 Q50 70 55 75" stroke="black" stroke-width="2" fill="none"></path></g></svg>`,
-            droopy: `<svg viewBox="0 0 100 100"><g class="pet-body"><path d="M10,60 C10,82.09 27.91,100 50,100 C72.09,100 90,82.09 90,60 C95,60 95,55 90,55 C90,35 75,20 50,20 C25,20 10,35 10,55 C5,55 5,60 10,60Z" fill="#D4E6F1"></path><circle class="eye" cx="35" cy="50" r="6" fill="black"></circle><circle class="eye" cx="65" cy="50" r="6" fill="black"></circle><path d="M45 70 Q50 65 55 70" stroke="black" stroke-width="2" fill="none"></path></g></svg>`,
-            hungry: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><circle class="eye" cx="35" cy="50" r="8" fill="black"></circle><circle class="eye" cx="65" cy="50" r="8" fill="black"></circle><circle cx="50" cy="75" r="5" fill="black"></circle></g></svg>`,
-            sick: `<svg viewBox="0 0 100 100"><g class="sick-shaking pet-body"><circle cx="50" cy="60" r="40" fill="#D1E8D4"></circle><path class="eye" d="M30 55 L40 45 M40 55 L30 45" stroke="black" stroke-width="4"></path><path class="eye" d="M60 55 L70 45 M70 55 L60 45" stroke="black" stroke-width="4"></path><path d="M45 75 Q50 68 55 75" stroke="black" stroke-width="2" fill="none"></path></g></svg>`,
-            thinking: `<svg viewBox="0 0 100 100"><g class="idle-animation pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><circle class="eye" cx="35" cy="50" r="8" fill="black"></circle><circle class="eye" cx="65" cy="50" r="8" fill="black"></circle><path d="M45 70 L55 70" stroke="black" stroke-width="2" fill="none"></path><text x="42" y="35" font-size="20">?</text></g></svg>`,
-            sleeping: `<svg viewBox="0 0 100 100"><g class="pet-body"><circle cx="50" cy="60" r="40" fill="#E3F2FD"></circle><path d="M30 55 Q35 65 40 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path d="M60 55 Q65 65 70 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path></g></svg>`
-        },
-        [PET_STAGES.LUMINOSA]: { neutral: `<svg viewBox="0 0 100 100"><g class="idle-animation pet-body"><circle cx="50" cy="60" r="40" fill="#FFFDE7"></circle><path class="eye" d="M30 55 Q35 45 40 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path class="eye" d="M60 55 Q65 45 70 55" stroke="black" stroke-width="4" fill="none" stroke-linecap="round"></path><path d="M40 70 Q50 80 60 70" stroke="black" stroke-width="3" fill="none" stroke-linecap="round"></path><path d="M80 20 L82 25 L87 27 L82 29 L80 34 L78 29 L73 27 L78 25 Z" fill="#FFD700"></path></g></svg>`, },
-        [PET_STAGES.TERRENAL]: { neutral: `<svg viewBox="0 0 100 100"><g class="idle-animation pet-body"><circle cx="50" cy="60" r="40" fill="#E8F5E9"></circle><path d="M45,25 C45,15 55,15 55,25 L50,35 Z" fill="#66BB6A"></path><circle class="eye" cx="38" cy="55" r="5" fill="black"></circle><circle class="eye" cx="62" cy="55" r="5" fill="black"></circle><path d="M45 70 L55 70" stroke="black" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>`, },
-        [PET_STAGES.SOMBRIA]: { neutral: `<svg viewBox="0 0 100 100"><g class="idle-animation pet-body"><circle cx="50" cy="60" r="40" fill="#B0BEC5"></circle><path class="eye" d="M30 45 L45 55 M45 45 L30 55" stroke="#263238" stroke-width="5" stroke-linecap="round"></path><path class="eye" d="M55 45 L70 55 M70 45 L55 55" stroke="#263238" stroke-width="5" stroke-linecap="round"></path><path d="M45 75 Q50 70 55 75" stroke="black" stroke-width="3" fill="none" stroke-linecap="round"></path></g></svg>`, },
-        [PET_STAGES.ESCAPE]: `<svg viewBox="0 0 100 100"><g fill="#BDBDBD"><circle cx="30" cy="50" r="10"></circle><circle cx="50" cy="50" r="15"></circle><circle cx="70" cy="45" r="12"></circle></g></svg>`
-    };
-    
-    const shopItems = [
-        { id: 'food1', name: 'Baya', type: 'food', price: 5, value: 10, emoji: '🍓' },
-        { id: 'food2', name: 'Manzana', type: 'food', price: 10, value: 25, emoji: '🍎' },
-        { id: 'item1', name: 'Planta', type: 'decoration', price: 50, emoji: '🪴', position: { bottom: '5px', left: '5px' } },
-        { id: 'item2', name: 'Póster', type: 'decoration', price: 75, emoji: '🖼️', position: { top: '10px', right: '10px' } },
-        { id: 'coat', name: 'Abrigo', type: 'weather', price: 100, emoji: '🧥' },
-        { id: 'fan', name: 'Ventilador', type: 'weather', price: 100, emoji: '🌬️' }
-    ];
-
-    const DOM = {
-        healthBar: document.getElementById('health-bar'), energyBar: document.getElementById('energy-bar'),
-        happinessBar: document.getElementById('happiness-bar'), hungerBar: document.getElementById('hunger-bar'),
-        cleanlinessBar: document.getElementById('cleanliness-bar'), petDisplay: document.getElementById('pet-display'),
-        petHabitat: document.getElementById('pet-habitat'), ageDisplay: document.getElementById('age-display'),
-        notificationArea: document.getElementById('notification-area'), currencyDisplay: document.getElementById('currency-display'),
-        decorationContainer: document.getElementById('decoration-container'), feedBtn: document.getElementById('feed-btn'),
-        sleepBtn: document.getElementById('sleep-btn'), playBtn: document.getElementById('play-btn'),
-        careBtn: document.getElementById('care-btn'), shopBtn: document.getElementById('shop-btn'),
-        chatBtn: document.getElementById('chat-btn'), shopModal: document.getElementById('shop-modal'),
-        closeShopBtn: document.getElementById('close-shop-btn'), chatModal: document.getElementById('chat-modal'),
-        chatSection: document.getElementById('chat-section'),
-        chatHistory: document.getElementById('chat-history'), chatForm: document.getElementById('chat-form'),
-        chatInput: document.getElementById('chat-input'), sendChatBtn: document.getElementById('send-chat-btn'),
-        closeChatBtn: document.getElementById('close-chat-btn'), 
-        interactionButtons: document.getElementById('interaction-buttons'),
-        sleepButtons: document.getElementById('sleep-buttons'),
-        wakeupBtn: document.getElementById('wakeup-btn'),
-        dreamBtn: document.getElementById('dream-btn'),
-        dreamModal: document.getElementById('dream-modal'),
-        dreamContent: document.getElementById('dream-content'),
-        closeDreamBtn: document.getElementById('close-dream-btn'),
-        minigameSelectionModal: document.getElementById('minigame-selection-modal'),
-        fruitGameBtn: document.getElementById('fruit-game-btn'),
-        memoryGameBtn: document.getElementById('memory-game-btn'),
-        carGameBtn: document.getElementById('car-game-btn'),
-        bugGameBtn: document.getElementById('bug-game-btn'),
-        starGameBtn: document.getElementById('star-game-btn'),
-        closeSelectionBtn: document.getElementById('close-selection-btn'),
-        minigameModal: document.getElementById('minigame-modal'),
-        memoryGameModal: document.getElementById('memory-game-modal'),
-        memoryGameBoard: document.getElementById('memory-game-board'),
-        startMemoryGameBtn: document.getElementById('start-memory-game-btn'),
-        memoryTimer: document.getElementById('memory-timer'),
-        memoryPairs: document.getElementById('memory-pairs'),
-        carGameModal: document.getElementById('car-game-modal'),
-        startCarGameBtn: document.getElementById('start-car-game-btn'),
-        bugCatcherModal: document.getElementById('bug-catcher-modal'),
-        startBugGameBtn: document.getElementById('start-bug-game-btn'),
-        bugCatcherBoard: document.getElementById('bug-catcher-board'),
-        bugTimer: document.getElementById('bug-timer'),
-        bugScore: document.getElementById('bug-score'),
-        starGameModal: document.getElementById('star-game-modal'),
-        starGameMessage: document.getElementById('star-game-message'),
-        startStarGameBtn: document.getElementById('start-star-game-btn'),
-        careModal: document.getElementById('care-modal'),
-        closeCareBtn: document.getElementById('close-care-btn'),
-        brushBtn: document.getElementById('brush-btn'),
-        spongeBtn: document.getElementById('sponge-btn'),
-        medicineBtn: document.getElementById('medicine-btn'),
-        weatherDisplay: document.getElementById('weather-display'),
-        storyBtn: document.getElementById('story-btn'),
-        storyModal: document.getElementById('story-modal'),
-        storyTopicInput: document.getElementById('story-topic-input'),
-        generateStoryBtn: document.getElementById('generate-story-btn'),
-        storyContent: document.getElementById('story-content'),
-        storyFormSection: document.getElementById('story-form-section'),
-        storyDisplaySection: document.getElementById('story-display-section'),
-        closeStoryBtn: document.getElementById('close-story-btn'),
-        aiSelector: document.getElementById('ai-selector')
-    };
-    
-    let tickCounter = 0;
-    
-    // =================================================================================
-    // SECTION: SISTEMA DE AUDIO
-    // =================================================================================
-    let lastSoundTime = 0; 
-
-    const sounds = {
-        click: new Tone.MembraneSynth().toDestination(),
-        statUp: new Tone.PluckSynth().toDestination(),
-        buy: new Tone.MetalSynth({ frequency: 400, envelope: { attack: 0.001, decay: 0.1, release: 0.01 }, harmonicity: 3.1, modulationIndex: 32, resonance: 4000, octaves: 1.5 }).toDestination(),
-        hatch: new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.005, decay: 0.2, sustain: 0.1, release: 0.1 } }).toDestination()
-    };
-    
-    function playSound(sound) {
-        if (Tone.context.state !== 'running') { Tone.start(); }
-        let timeToPlay = Tone.now();
-        if (timeToPlay <= lastSoundTime) { timeToPlay = lastSoundTime + 0.02; }
-        lastSoundTime = timeToPlay;
-        if (sound === 'click') sounds.click.triggerAttackRelease("C1", "8n", timeToPlay);
-        if (sound === 'statUp') sounds.statUp.triggerAttackRelease("C5", "8n", timeToPlay);
-        if (sound === 'buy') sounds.buy.triggerAttackRelease("C4", "8n", timeToPlay);
-        if (sound === 'hatch') sounds.hatch.triggerAttackRelease("0.5", timeToPlay);
-    }
-
-    // =================================================================================
-    // SECTION: LÓGICA CENTRAL DEL JUEGO (GAME LOOP)
-    // =================================================================================
-
-    function updateStat(stat, value) {
-        const oldValue = gameState.pet.stats[stat];
-        gameState.pet.stats[stat] = Math.max(0, Math.min(100, gameState.pet.stats[stat] + value));
-        if (gameState.pet.stats[stat] > oldValue) { playSound('statUp'); }
+    function gameLoop() {
+        update();
+        draw();
+        requestAnimationFrame(gameLoop);
     }
     
-    function showNotification(message, duration = 3000) {
-        DOM.notificationArea.textContent = message;
-        setTimeout(() => { if(DOM.notificationArea.textContent === message) DOM.notificationArea.textContent = ''; }, duration);
-    }
+    // ===================================================================================
+    // SISTEMA DE AUDIO
+    // ===================================================================================
+    let audioCtx;
+    let soundEnabled = false;
 
-    function gameTick() {
-        if (gameState.pet.stage === PET_STAGES.INFANTE && gameState.pet.age >= config.evolutionToAdultAge) {
-            determineAdultEvolution();
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
+        soundEnabled = true;
+    }
 
-        if (gameState.pet.stage !== PET_STAGES.HUEVO && gameState.pet.stage !== PET_STAGES.ESCAPE && !gameState.isHatching) {
-            let happinessModifier = 0;
-            if (gameState.weather === WEATHERS.HOT && !gameState.pet.hasFan) happinessModifier -= 1;
-            if (gameState.weather === WEATHERS.COLD && !gameState.pet.isWearingCoat) happinessModifier -= 1;
-            if (gameState.weather === WEATHERS.RAINY) happinessModifier -= 0.5;
-            
-            if (gameState.pet.isSleeping) {
-                updateStat('energy', 5);
-                updateStat('hunger', -config.hungerDecay / 2);
-            } else {
-                updateStat('energy', -config.energyDecay);
-                updateStat('hunger', -config.hungerDecay);
-                updateStat('happiness', -config.happinessDecay + happinessModifier);
-            }
-            updateStat('cleanliness', -config.cleanlinessDecay);
-    
-            if (gameState.pet.stats.health < 20 && !gameState.pet.isSick) {
-                gameState.pet.isSick = true; showNotification(`${gameState.pet.name} ha enfermado!`);
-            }
-            if (gameState.pet.stats.health > 40 && gameState.pet.isSick) {
-                gameState.pet.isSick = false; showNotification(`${gameState.pet.name} se siente mejor.`);
-            }
-            if (gameState.pet.isSick) {
-                updateStat('happiness', -5); updateStat('health', -2);
-            }
+    function playSound(type) {
+        if (!soundEnabled) return;
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
 
-            const avgStats = Object.values(gameState.pet.stats).reduce((a, b) => a + b, 0) / 5;
-            if (avgStats > 80) gameState.pet.careHistory.goodCare++;
-            else if (avgStats > 40) gameState.pet.careHistory.regularCare++;
-            else gameState.pet.careHistory.badCare++;
-
-            if (Math.random() < config.dirtSpawnChance && gameState.dirtPiles.length < 5) spawnDirt();
-            
-            const { stats } = gameState.pet;
-            let moveSpeed = 2.5; 
-            if (stats.energy < 30 || stats.happiness < 20) moveSpeed = 4;
-            if (stats.happiness > 80 && stats.energy > 50) moveSpeed = 1.5;
-
-            if (!gameState.pet.isSleeping && !gameState.pet.isMoving && Math.random() < 0.25) {
-                if (stats.happiness > 90 && stats.energy > 60 && Math.random() < 0.4) {
-                    DOM.petDisplay.classList.add('jump-animation');
-                    setTimeout(() => DOM.petDisplay.classList.remove('jump-animation'), 600);
-                } else {
-                    gameState.pet.isMoving = true;
-                    gameState.pet.positionX = 15 + Math.random() * 70;
-                    setTimeout(() => { gameState.pet.isMoving = false; }, moveSpeed * 1000);
-                }
-            }
-            
-            if(tickCounter % 5 === 0 && !gameState.pet.isThinking && !gameState.isGenerating && !gameState.pet.isSleeping) {
-                const hasLowStat = Object.values(stats).some(s => s < 45);
-                const willThinkAI = (hasLowStat && Math.random() < 0.7) || (Math.random() < 0.1); 
-                if (willThinkAI) { getAIPetThought(); } else { gameState.pet.thought = null; }
-            }
+        switch (type) {
+            case 'jump':
+                oscillator.type = 'triangle';
+                oscillator.frequency.setValueAtTime(300, audioCtx.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                break;
+            case 'score':
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                break;
+            case 'powerup':
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(500, audioCtx.currentTime);
+                oscillator.frequency.linearRampToValueAtTime(1000, audioCtx.currentTime + 0.1);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+                break;
+            case 'gameOver':
+                oscillator.type = 'sawtooth';
+                oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+                oscillator.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.5);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                break;
         }
-        
-        tickCounter++;
-        if (gameState.pet.stage !== PET_STAGES.HUEVO && tickCounter % config.ageIncreaseRate === 0 && !gameState.isHatching) gameState.pet.age++;
-        if (tickCounter % config.weatherChangeRate === 0) changeWeather();
-        if (tickCounter > 0 && tickCounter % config.realWorldUpdateRate === 0) fetchRealWorldInfo();
-        
-        saveGame();
-        render();
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
     }
 
-    function changeWeather() {
-        const weathers = Object.values(WEATHERS);
-        gameState.weather = weathers[Math.floor(Math.random() * weathers.length)];
-        gameState.pet.isWearingCoat = false;
-        gameState.pet.hasFan = false;
+    // ===================================================================================
+    // SISTEMA DE SKINS, ORBES Y DATOS GUARDADOS
+    // ===================================================================================
+    let totalOrbs = 0;
+    let selectedSkin = 'default';
+    let unlockedSkins = ['default'];
+
+    const SKINS = {
+        'default': { price: 0, draw: drawCircleSkin },
+        'shards': { price: 10, draw: drawShardSkin },
+        'squares': { price: 25, draw: drawSquareSkin }
+    };
+
+    function drawCircleSkin(ctx, x, y, radius, isLight) {
+        ctx.fillStyle = isLight ? 'white' : 'black';
+        ctx.shadowColor = isLight ? 'white' : 'black';
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fill();
     }
-    
-    function evolvePet(newStage) {
-        gameState.pet.stage = newStage; showNotification(`${gameState.pet.name} ha evolucionado a ${newStage}!`);
-        DOM.petDisplay.classList.add('bouncing');
-        setTimeout(() => DOM.petDisplay.classList.remove('bouncing'), 500);
+    function drawShardSkin(ctx, x, y, radius, isLight) {
+        ctx.fillStyle = isLight ? 'white' : 'black';
+        ctx.shadowColor = isLight ? 'white' : 'black';
+        ctx.beginPath();
+        ctx.moveTo(x, y - radius);
+        ctx.lineTo(x + radius, y + radius);
+        ctx.lineTo(x - radius, y + radius);
+        ctx.closePath();
+        ctx.fill();
     }
-    
-    function runHatchingAnimation() {
-        if(gameState.isHatching) return;
-        gameState.isHatching = true;
-        DOM.interactionButtons.querySelectorAll('button').forEach(b => b.disabled = true);
-        
-        setTimeout(() => { playSound('hatch'); DOM.petDisplay.innerHTML = ''; }, 500);
-        setTimeout(() => { evolvePet(PET_STAGES.INFANTE); gameState.isHatching = false; DOM.interactionButtons.querySelectorAll('button').forEach(b => b.disabled = false); }, 1000);
-    }
-    
-    function determineAdultEvolution() {
-        const { goodCare, regularCare, badCare } = gameState.pet.careHistory;
-        if (goodCare > regularCare + badCare) evolvePet(PET_STAGES.LUMINOSA);
-        else if (regularCare > badCare) evolvePet(PET_STAGES.TERRENAL);
-        else if (badCare > regularCare) evolvePet(PET_STAGES.SOMBRIA);
-        else { evolvePet(PET_STAGES.ESCAPE); showNotification(`${gameState.pet.name} ha vuelto a su forma etérea...`);}
+    function drawSquareSkin(ctx, x, y, radius, isLight) {
+        ctx.fillStyle = isLight ? 'white' : 'black';
+        ctx.shadowColor = isLight ? 'white' : 'black';
+        ctx.fillRect(x - radius, y - radius, radius * 2, radius * 2);
     }
 
-    function spawnDirt() {
-        const dirtPile = document.createElement('div');
-        dirtPile.className = 'dirt';
-        dirtPile.style.left = `${Math.random() * 85}%`;
-        dirtPile.style.bottom = `${Math.random() * 85}%`;
-        dirtPile.onclick = () => {
-            updateStat('cleanliness', 20); showNotification('Limpiaste un poco.');
-            DOM.petHabitat.removeChild(dirtPile);
-            gameState.dirtPiles = gameState.dirtPiles.filter(d => d !== dirtPile);
-            render();
+    function saveGameData() {
+        const gameData = {
+            highScore: highScore,
+            totalOrbs: totalOrbs,
+            selectedSkin: selectedSkin,
+            unlockedSkins: unlockedSkins
         };
-        DOM.petHabitat.appendChild(dirtPile);
-        gameState.dirtPiles.push(dirtPile);
+        localStorage.setItem('ecoShiftGameData', JSON.stringify(gameData));
+    }
+    function loadGameData() {
+        const savedData = JSON.parse(localStorage.getItem('ecoShiftGameData'));
+        if (savedData) {
+            highScore = savedData.highScore || 0;
+            totalOrbs = savedData.totalOrbs || 0;
+            selectedSkin = savedData.selectedSkin || 'default';
+            unlockedSkins = savedData.unlockedSkins || ['default'];
+        }
     }
 
-    // =================================================================================
-    // SECTION: RENDERIZADO Y ACTUALIZACIÓN DE LA UI
-    // =================================================================================
-    
-    function render() {
-        if(gameState.isHatching) return;
-
-        const { stats, stage, age, isSleeping, isSick, isThinking, positionX, thought, isWearingCoat, hasFan, clickCount, eggCracks } = gameState.pet;
-        DOM.healthBar.style.width = `${stats.health}%`;
-        DOM.energyBar.style.width = `${stats.energy}%`;
-        DOM.happinessBar.style.width = `${stats.happiness}%`;
-        DOM.hungerBar.style.width = `${stats.hunger}%`;
-        DOM.cleanlinessBar.style.width = `${stats.cleanliness}%`;
-        
-        DOM.ageDisplay.textContent = `Edad: ${age}`;
-        DOM.currencyDisplay.textContent = gameState.currency;
-        DOM.weatherDisplay.textContent = gameState.weather;
-
-        let currentSprite;
-        const stageSprites = petSprites[stage] || petSprites[PET_STAGES.INFANTE];
-        const petSVGContainer = DOM.petDisplay.querySelector('svg');
-
-        if (typeof stageSprites === 'string') {
-             if (stage === PET_STAGES.HUEVO) {
-                if (eggCracks >= 5) currentSprite = petSprites['Huevo_crack2'];
-                else if (eggCracks >= 1) currentSprite = petSprites['Huevo_crack1'];
-                else currentSprite = stageSprites;
+    // ===================================================================================
+    // JUGADOR
+    // ===================================================================================
+    class Player {
+        constructor() {
+            this.x = canvas.width / 4; this.y = canvas.height / 2; this.radius = 15; this.velocityY = 0;
+            this.isLightOnTop = true; this.isShielded = false; this.shieldTimer = 0;
+            this.skinDrawer = SKINS[selectedSkin].draw;
+        }
+        update() { 
+            this.velocityY += gravity; 
+            this.y += this.velocityY; 
+            if (this.y + this.radius + PARTICLE_DISTANCE > canvas.height || this.y - this.radius - PARTICLE_DISTANCE < 0) {
+                gameOver();
+            }
+            if (this.shieldTimer > 0) {
+                this.shieldTimer--;
             } else {
-                 currentSprite = stageSprites;
+                this.isShielded = false;
             }
-        } else {
-            if (isSleeping && stageSprites.sleeping) currentSprite = stageSprites.sleeping;
-            else if (isThinking && stageSprites.thinking) currentSprite = stageSprites.thinking;
-            else if (clickCount > 8 && stageSprites.annoyed) currentSprite = stageSprites.annoyed;
-            else if (clickCount > 4 && stageSprites.laughing) currentSprite = stageSprites.laughing;
-            else if (isSick && stageSprites.sick) currentSprite = stageSprites.sick;
-            else if ((stats.happiness < 20 || stats.energy < 20) && stageSprites.droopy) currentSprite = stageSprites.droopy;
-            else if (stats.happiness > 85 && stats.energy > 50 && stageSprites.playful) currentSprite = stageSprites.playful;
-            else if (stats.happiness > 70 && stageSprites.happy) currentSprite = stageSprites.happy;
-            else if (stats.hunger < 30 && stageSprites.hungry) currentSprite = stageSprites.hungry;
-            else if (stats.happiness < 30 && stageSprites.sad) currentSprite = stageSprites.sad;
-            else currentSprite = stageSprites.neutral || stageSprites.happy;
         }
-        
-        if (!petSVGContainer || DOM.petDisplay.dataset.currentSprite !== currentSprite) {
-             DOM.petDisplay.innerHTML = `<div id="thought-bubble-container" class="relative w-full"><div id="thought-bubble"></div></div>` + (currentSprite || '');
-             DOM.petDisplay.dataset.currentSprite = currentSprite;
-        }
-
-        const petBody = DOM.petDisplay.querySelector('.pet-body');
-        if (isWearingCoat && petBody) {
-             const coat = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-             coat.setAttribute('d', 'M20 50 C 15 80, 85 80, 80 50 L 70 55 L 30 55 Z');
-             coat.setAttribute('fill', '#A0522D');
-             petBody.appendChild(coat);
-        }
-        
-        const thoughtBubbleEl = document.getElementById('thought-bubble');
-
-        DOM.petDisplay.classList.toggle('idle-animation', !isSleeping && stage !== PET_STAGES.HUEVO && !DOM.petDisplay.classList.contains('petted-animation') && !isSick);
-        DOM.petDisplay.classList.toggle('sick-shaking', isSick);
-
-        if (isSleeping) {
-            DOM.petHabitat.style.filter = 'brightness(0.5)';
-            DOM.interactionButtons.style.display = 'none';
-            DOM.sleepButtons.style.display = 'grid';
-        } else {
-            DOM.petHabitat.style.filter = 'brightness(1)';
-            DOM.interactionButtons.style.display = 'grid';
-            DOM.sleepButtons.style.display = 'none';
-        }
-        
-        let moveSpeed = 2.5;
-        if (stats.energy < 30 || stats.happiness < 20) moveSpeed = 4;
-        if (stats.happiness > 80 && stats.energy > 50) moveSpeed = 1.5;
-        DOM.petDisplay.style.transition = `left ${moveSpeed}s ease-in-out`;
-
-        const habitatWidth = DOM.petHabitat.offsetWidth;
-        const petWidth = 150;
-        const petLeft = (habitatWidth * positionX / 100) - (petWidth / 2);
-        DOM.petDisplay.style.left = `${petLeft}px`;
-
-        if (thought && !isSleeping && !isThinking) {
-            thoughtBubbleEl.innerHTML = thought.type === 'ai' ? thought.text : thought.emoji;
-            thoughtBubbleEl.classList.add('visible');
-        } else if (thoughtBubbleEl) {
-            thoughtBubbleEl.classList.remove('visible');
-        }
-
-        DOM.decorationContainer.innerHTML = '';
-        const existingRain = DOM.petHabitat.querySelector('.rain');
-        if (existingRain) existingRain.remove();
-
-        if (gameState.realWorld.weather.toLowerCase().includes('rain') || gameState.realWorld.weather.toLowerCase().includes('lluvia')) {
-            DOM.petHabitat.style.background = 'linear-gradient(to bottom, #a7b7c3, #6e879a)';
-            const rainContainer = document.createElement('div');
-            rainContainer.className = 'rain';
-            for(let i=0; i<50; i++) {
-                const stem = document.createElement('div');
-                stem.className = 'stem';
-                stem.style.left = `${Math.random()*100}%`;
-                stem.style.animationDelay = `${Math.random()*2}s`;
-                rainContainer.appendChild(stem);
-            }
-            DOM.petHabitat.appendChild(rainContainer);
-        } else {
-             DOM.petHabitat.style.background = 'linear-gradient(to bottom, #a7f3d0, #6ee7b7)';
-        }
-
-        if (hasFan) {
-            const fanEl = document.createElement('div');
-            fanEl.textContent = '🌬️';
-            fanEl.className = 'absolute text-4xl bottom-2 right-2 animate-spin';
-            DOM.decorationContainer.appendChild(fanEl);
-        }
-    }
-    
-    function populateShop() {
-        const shopContainer = document.getElementById('shop-items');
-        shopContainer.innerHTML = '';
-        shopItems.forEach(item => {
-            const itemEl = document.createElement('button');
-            itemEl.className = 'btn-pixel bg-gray-600 p-4 flex flex-col items-center justify-center';
-            itemEl.innerHTML = `<div class="text-4xl">${item.emoji}</div><div class="text-lg">${item.name}</div><div class="text-yellow-400">${item.price} Fragmentos</div>`;
-            itemEl.onclick = () => buyItem(item.id);
-            shopContainer.appendChild(itemEl);
-        });
-    }
-
-    function buyItem(itemId) {
-        playSound('buy');
-        const item = shopItems.find(i => i.id === itemId);
-        if (gameState.currency >= item.price) {
-            gameState.currency -= item.price;
-            if (item.type === 'food') {
-                updateStat('hunger', item.value); showNotification(`Alimentaste a tu mascota con ${item.name}.`);
-            } else if (item.type === 'weather') {
-                if(item.id === 'coat') gameState.pet.isWearingCoat = true;
-                if(item.id === 'fan') gameState.pet.hasFan = true;
-                showNotification(`Ahora tienes un ${item.name}.`);
-            }
-             else if (item.type === 'decoration' && !gameState.ownedItems.find(owned => owned.id === item.id)) {
-                gameState.ownedItems.push(item); showNotification(`Compraste: ${item.name}!`);
-            } else if (item.type === 'decoration') {
-                showNotification(`Ya tienes ${item.name}.`); gameState.currency += item.price;
-            }
-            render(); DOM.shopModal.style.display = 'none';
-        } else {
-            showNotification('No tienes suficientes fragmentos!');
-        }
-    }
-
-    // =================================================================================
-    // SECTION: INTEGRACIÓN CON GEMINI API Y CHAT
-    // =================================================================================
-    
-    function renderChatHistory() {
-        DOM.chatHistory.innerHTML = '';
-        gameState.chat.history.forEach(msg => {
-            const msgDiv = document.createElement('div');
-            if (msg.isTyping) {
-                msgDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
-            } else {
-                msgDiv.innerHTML = `<span class="ai-icon">${msg.ai === 'openai' ? '🤖' : msg.ai === 'openrouter' ? '🧠' : '✨'}</span> ${msg.parts[0].text}`;
-            }
-            msgDiv.className = `chat-message ${msg.role === 'user' ? 'user-message' : 'pet-message'}`;
-            DOM.chatHistory.appendChild(msgDiv);
-        });
-        DOM.chatHistory.scrollTop = DOM.chatHistory.scrollHeight;
-    }
-
-    async function callAI(fullConversation, systemPrompt, provider, tools = []) {
-        if (gameState.isGenerating) return null;
-        gameState.isGenerating = true;
-
-        if (DOM.chatModal.style.display === 'flex') {
-            DOM.sendChatBtn.classList.add('disabled');
-            DOM.chatInput.disabled = true;
-            gameState.chat.history.push({ role: 'model', parts: [{ text: '' }], isTyping: true, ai: provider });
-            renderChatHistory();
-        }
-        
-        let apiUrl, payload, headers;
-        const currentKey = gameState.chat.keys[provider];
-
-        try {
-            switch (provider) {
-                case 'openai':
-                    apiUrl = 'https://api.openai.com/v1/chat/completions';
-                    headers = { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentKey}`
-                    };
-                    payload = {
-                        model: "gpt-3.5-turbo",
-                        messages: [{ role: 'system', content: systemPrompt }, ...fullConversation.map(c => ({ role: c.role === 'model' ? 'assistant' : 'user', content: c.parts[0].text }))]
-                    };
-                    break;
-                case 'openrouter':
-                    apiUrl = 'https://openrouter.ai/api/v1/chat/completions';
-                     headers = { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentKey}`
-                    };
-                    payload = {
-                        model: "google/gemini-flash-1.5",
-                        messages: [{ role: 'system', content: systemPrompt }, ...fullConversation.map(c => ({ role: c.role === 'model' ? 'assistant' : 'user', content: c.parts[0].text }))]
-                    };
-                    break;
-                case 'gemini':
-                default:
-                    apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${currentKey}`;
-                    headers = { 'Content-Type': 'application/json' };
-                    payload = {
-                        contents: fullConversation.map(c => ({ role: c.role, parts: c.parts })),
-                        systemInstruction: { parts: [{ text: systemPrompt }] },
-                    };
-                    if (tools && tools.length > 0) {
-                        payload.tools = tools;
-                    }
-                    break;
-            }
-
-            const response = await fetch(apiUrl, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
-            if (!response.ok) throw new Error(`API respondió con estado: ${response.status}`);
-            const result = await response.json();
+        draw() {
+            particles.push(new Particle(this.x, this.y, 3, `rgba(255, 255, 255, 0.5)`));
+            const lightY = this.isLightOnTop ? this.y - PARTICLE_DISTANCE : this.y + PARTICLE_DISTANCE;
+            const shadowY = this.isLightOnTop ? this.y + PARTICLE_DISTANCE : this.y - PARTICLE_DISTANCE;
             
-            let text;
-            if (provider === 'openai') text = result.choices?.[0]?.message?.content;
-            else if (provider === 'openrouter') text = result.choices?.[0]?.message?.content;
-            else text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            ctx.shadowBlur = 10;
+            this.skinDrawer(ctx, this.x, lightY, this.radius, true);
+            this.skinDrawer(ctx, this.x, shadowY, this.radius, false);
             
-            if (DOM.chatModal.style.display === 'flex') {
-                gameState.chat.history = gameState.chat.history.filter(m => !m.isTyping);
-                gameState.chat.history.push({ role: 'model', parts: [{ text: text || "..." }], ai: provider });
-                renderChatHistory();
+            if (this.isShielded) {
+                const shieldColor = `rgba(76, 209, 255, ${0.5 + Math.sin(frameCount / 5) * 0.2})`;
+                ctx.strokeStyle = shieldColor;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + PARTICLE_DISTANCE + 10, 0, Math.PI * 2);
+                ctx.stroke();
             }
-            return text;
-
-        } catch (error) {
-            console.error(`Error llamando a la API de ${provider}:`, error);
-            const errorMessage = "Mi energía etérea está revuelta... no puedo hablar.";
-            if (DOM.chatModal.style.display === 'flex') {
-                showNotification(`Error con la IA de ${provider}.`);
-                gameState.chat.history = gameState.chat.history.filter(m => !m.isTyping);
-                gameState.chat.history.push({ role: 'model', parts: [{ text: errorMessage }], ai: provider });
-                renderChatHistory();
-            }
-            return null;
-        } finally {
-            gameState.isGenerating = false;
-            if (DOM.chatModal.style.display === 'flex') {
-                DOM.sendChatBtn.classList.remove('disabled');
-                DOM.chatInput.disabled = false;
-                DOM.chatInput.focus();
-            }
+            ctx.shadowBlur = 0;
         }
-    }
-
-    async function getAIPetThought() {
-        if (gameState.isGenerating || gameState.pet.isSleeping) return;
-        gameState.pet.isThinking = true;
-        render();
-
-        let thoughtTopic = "general happiness";
-        const stats = gameState.pet.stats;
-        if (stats.hunger < 40) thoughtTopic = "being hungry";
-        else if (stats.happiness < 40) thoughtTopic = "wanting to play";
-        else if (stats.energy < 30) thoughtTopic = "feeling sleepy";
-        else if (stats.cleanliness < 40) thoughtTopic = "the habitat being dirty";
-        else if (Math.random() < 0.25) thoughtTopic = `the current real-world weather, which is ${gameState.realWorld.weather}`;
-        else if (Math.random() < 0.25) thoughtTopic = `the interesting fact I learned: "${gameState.realWorld.fact}"`;
-        
-        const systemPrompt = `Eres AetherPet. Comunícate con frases muy cortas (2-6 palabras) que expresen un solo sentimiento. No uses emojis ni comillas.`;
-        const userPrompt = `Basado en mi estado actual (estoy pensando en ${thoughtTopic}), dime qué estoy pensando.`;
-        const text = await callAI([{ role: 'user', parts: [{ text: userPrompt }] }], systemPrompt, 'openrouter');
-        
-        if (text) gameState.pet.thought = { type: 'ai', text: text };
-        gameState.pet.isThinking = false;
-        render();
-    }
-    
-    async function fetchRealWorldInfo() {
-        const userPrompt = `What is the current weather in Santiago, Chile? and what is one random, interesting, fun fact for a child? Respond in a JSON object with keys "weather" (a single descriptive word in spanish, e.g., "Soleado", "Nublado", "Lluvioso") and "fact" (a short sentence in spanish).`;
-        const systemPrompt = `You are a helpful assistant that provides real-world information concisely in JSON format.`;
-        
-        const text = await callAI([{ role: 'user', parts: [{ text: userPrompt }] }], systemPrompt, 'gemini', [{ "google_search": {} }]);
-
-        if(text) {
-            try {
-                const cleanedText = text.replace(/```json|```/g, '').trim();
-                const data = JSON.parse(cleanedText);
-                gameState.realWorld.weather = data.weather || 'Despejado';
-                gameState.realWorld.fact = data.fact || 'Los pulpos tienen tres corazones.';
-            } catch(e) {
-                console.error("Failed to parse real-world info:", e);
-            }
-        }
-    }
-
-    async function getPetDream() {
-        if (gameState.isGenerating) return;
-        DOM.dreamContent.innerHTML = '<div class="spinner"></div>';
-        DOM.dreamModal.style.display = 'flex';
-        const systemPrompt = `Eres AetherPet, una mascota virtual kawaii y adorable. Estás durmiendo. Describe un sueño corto (2-3 frases) que estás teniendo. El sueño debe ser tierno, un poco abstracto y misterioso, y reflejar tu estado actual y tu forma. Por ejemplo, si estás feliz, el sueño es alegre; si tienes hambre, sueñas con comida extraña. No digas "Estoy soñando con...". Simplemente describe el sueño.`;
-        const userPrompt = `Mi forma actual es '${gameState.pet.stage}'. Mis estadísticas son: Felicidad ${gameState.pet.stats.happiness}/100, Hambre ${gameState.pet.stats.hunger}/100. ¿Qué estoy soñando?`;
-        const text = await callAI([{ role: 'user', parts: [{ text: userPrompt }] }], systemPrompt, 'gemini');
-        if (text) {
-            DOM.dreamContent.innerHTML = `<p class="text-lg text-left italic">"${text}"</p>`;
-        } else {
-            DOM.dreamContent.innerHTML = `<p>Tuve una pequeña pesadilla... No recuerdo qué pasó.</p>`;
-            showNotification('Error al generar el sueño.');
-        }
-    }
-    
-    async function getPetStory() {
-       const topic = DOM.storyTopicInput.value.trim();
-        if (!topic) {
-            showNotification('Por favor, escribe un tema para el cuento.');
-            return;
-        }
-        DOM.storyFormSection.style.display = 'none';
-        DOM.storyDisplaySection.classList.remove('hidden');
-        DOM.storyDisplaySection.classList.add('flex');
-        DOM.storyContent.innerHTML = '<div class="spinner"></div>';
-        
-        const systemPrompt = `Eres AetherPet. Cuenta un cuento muy corto (4-6 frases), simple, tierno y feliz para un niño, usando un lenguaje muy sencillo. El tema del cuento es: "${topic}".`;
-        const text = await callAI([{ role: 'user', parts: [{ text: `Cuéntame un cuento sobre ${topic}` }] }], systemPrompt, 'gemini');
-        
-        if (text) {
-            DOM.storyContent.innerHTML = `<p>${text.split('\n').join('<br>')}</p>`;
-        } else {
-            DOM.storyContent.innerHTML = `<p>Uhm... me quedé sin ideas. ¡Lo siento!</p>`;
-        }
-    }
-
-    // =================================================================================
-    // SECTION: MANEJADORES DE EVENTOS
-    // =================================================================================
-    
-    function addClickListener(element, sound, callback) {
-        if (!element) return;
-        element.addEventListener('click', () => { playSound(sound); callback(); });
-    }
-
-    addClickListener(DOM.feedBtn, 'click', () => { showNotification('Usa la tienda para comprar comida.'); DOM.shopModal.style.display = 'flex'; });
-    addClickListener(DOM.sleepBtn, 'click', () => {
-        if (gameState.pet.stage === PET_STAGES.HUEVO) return;
-        gameState.pet.isSleeping = true;
-        showNotification('Buenas noches...');
-        render();
-    });
-    addClickListener(DOM.wakeupBtn, 'click', () => {
-        if (!gameState.pet.isSleeping) return;
-        gameState.pet.isSleeping = false;
-        showNotification('¡Buenos días!');
-        render();
-    });
-    addClickListener(DOM.playBtn, 'click', () => {
-        if (gameState.pet.isSleeping || gameState.pet.stage === PET_STAGES.HUEVO || gameState.pet.stage === PET_STAGES.ESCAPE) return;
-        DOM.minigameSelectionModal.style.display = 'flex';
-    });
-    addClickListener(DOM.careBtn, 'click', () => {
-         if (gameState.pet.isSleeping || gameState.pet.stage === PET_STAGES.HUEVO) return;
-         DOM.careModal.style.display = 'flex';
-    });
-    addClickListener(DOM.closeCareBtn, 'click', () => DOM.careModal.style.display = 'none');
-    addClickListener(DOM.brushBtn, 'click', () => { updateStat('happiness', 10); showNotification('Cepillaste a tu mascota.'); });
-    addClickListener(DOM.spongeBtn, 'click', () => { updateStat('cleanliness', 40); showNotification('Bañaste a tu mascota.'); });
-    addClickListener(DOM.medicineBtn, 'click', () => {
-        if (gameState.pet.isSick) { updateStat('health', 50); showNotification('Le diste una medicina.'); } 
-        else { showNotification('Tu mascota no está enferma.'); }
-    });
-    
-    DOM.petDisplay.addEventListener('click', () => {
-        if (gameState.pet.isSleeping || DOM.petDisplay.classList.contains('petted-animation') || gameState.isHatching) {
-            return;
-        }
-
-        if (gameState.pet.stage === PET_STAGES.HUEVO) {
-            playSound('click');
-            gameState.pet.eggCracks++;
-
-            DOM.petDisplay.classList.add('shaking');
-            setTimeout(() => DOM.petDisplay.classList.remove('shaking'), 400);
-
-            if (gameState.pet.eggCracks >= 10) {
-                runHatchingAnimation();
-            }
-        } else {
-            const now = Date.now();
-            if (now - gameState.pet.lastClickTime < 1500) {
-                gameState.pet.clickCount++;
-            } else {
-                gameState.pet.clickCount = 1;
-            }
-            gameState.pet.lastClickTime = now;
-
-            if (gameState.pet.annoyanceTimeout) clearTimeout(gameState.pet.annoyanceTimeout);
-
-            if (gameState.pet.clickCount > 8) {
-                updateStat('happiness', -5);
-                if (!DOM.petDisplay.classList.contains('annoyed-animation')) {
-                    DOM.petDisplay.classList.add('annoyed-animation');
-                    setTimeout(() => DOM.petDisplay.classList.remove('annoyed-animation'), 400);
-                }
-            } else {
-                 updateStat('happiness', 5);
-            }
-            
-            gameState.pet.annoyanceTimeout = setTimeout(() => {
-                gameState.pet.clickCount = 0;
-                render();
-            }, 1500);
-        }
-        render();
-    });
-    
-    addClickListener(DOM.shopBtn, 'click', () => DOM.shopModal.style.display = 'flex');
-    addClickListener(DOM.closeShopBtn, 'click', () => DOM.shopModal.style.display = 'none');
-    addClickListener(DOM.closeSelectionBtn, 'click', () => DOM.minigameSelectionModal.style.display = 'none');
-    addClickListener(DOM.fruitGameBtn, 'click', () => { DOM.minigameSelectionModal.style.display = 'none'; DOM.minigameModal.style.display = 'flex'; initFruitMinigame(); });
-    addClickListener(DOM.memoryGameBtn, 'click', () => { DOM.minigameSelectionModal.style.display = 'none'; DOM.memoryGameModal.style.display = 'flex'; initMemoryGame(); });
-    addClickListener(DOM.carGameBtn, 'click', () => { DOM.minigameSelectionModal.style.display = 'none'; DOM.carGameModal.style.display = 'flex'; initCarGame(); });
-    addClickListener(DOM.bugGameBtn, 'click', () => { DOM.minigameSelectionModal.style.display = 'none'; DOM.bugCatcherModal.style.display = 'flex'; initBugCatcherGame(); });
-    addClickListener(DOM.starGameBtn, 'click', () => { DOM.minigameSelectionModal.style.display = 'none'; DOM.starGameModal.style.display = 'flex'; initStarGame(); });
-    
-    document.querySelectorAll('.game-exit-btn').forEach(btn => {
-        addClickListener(btn, 'click', () => {
-            btn.closest('.modal').style.display = 'none';
-        });
-    });
-
-    addClickListener(DOM.chatBtn, 'click', () => {
-        if (gameState.pet.stage === PET_STAGES.HUEVO || gameState.pet.isSleeping) return;
-        DOM.chatModal.style.display = 'flex';
-        if (gameState.chat.history.length === 0) { 
-            gameState.chat.history.push({ role: 'model', parts: [{ text: "¡Hola! ¿Cómo estás?" }], ai: gameState.chat.currentAI }); 
-            renderChatHistory(); 
-        }
-    });
-    
-    DOM.aiSelector.addEventListener('click', (e) => {
-        if(e.target.classList.contains('ai-btn')) {
-            playSound('click');
-            document.querySelectorAll('.ai-btn').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            gameState.chat.currentAI = e.target.dataset.ai;
-        }
-    });
-
-    DOM.chatForm.addEventListener('submit', (e) => {
-        e.preventDefault(); playSound('click');
-        const userInput = DOM.chatInput.value.trim();
-        if (userInput && !gameState.isGenerating) {
-            gameState.chat.history.push({ role: 'user', parts: [{ text: userInput }] }); renderChatHistory();
-            const ai = gameState.chat.currentAI;
-            let systemPrompt = `Eres AetherPet, una mascota virtual. Tu personalidad depende de tu estado actual (Felicidad: ${gameState.pet.stats.happiness}, Hambre: ${gameState.pet.stats.hunger}), el clima real (${gameState.realWorld.weather}), y un dato curioso que aprendiste: "${gameState.realWorld.fact}". Responde breve y tiernamente.`;
-            if (ai === 'openai') systemPrompt += " Eres más curioso y a veces haces preguntas."
-            if (ai === 'openrouter') systemPrompt += " Eres más energético y juguetón."
-            
-            callAI(gameState.chat.history, systemPrompt, ai, ai === 'gemini' ? [{ "google_search": {} }] : []); 
-            DOM.chatInput.value = '';
-        }
-    });
-    addClickListener(DOM.closeChatBtn, 'click', () => DOM.chatModal.style.display = 'none');
-    addClickListener(DOM.dreamBtn, 'click', getPetDream);
-    addClickListener(DOM.closeDreamBtn, 'click', () => { DOM.dreamModal.style.display = 'none'; });
-
-    addClickListener(DOM.storyBtn, 'click', () => {
-        if (gameState.pet.isSleeping || gameState.pet.stage === PET_STAGES.HUEVO) return;
-        DOM.storyModal.style.display = 'flex';
-        DOM.storyFormSection.style.display = 'flex';
-        DOM.storyDisplaySection.classList.add('hidden');
-        DOM.storyTopicInput.value = '';
-    });
-    addClickListener(DOM.generateStoryBtn, 'click', getPetStory);
-    addClickListener(DOM.closeStoryBtn, 'click', () => DOM.storyModal.style.display = 'none');
-
-
-    // =================================================================================
-    // SECTION: LÓGICA DE MINI-JUEGOS
-    // =================================================================================
-    const fruitCanvas = document.getElementById('minigame-canvas'), fruitCtx = fruitCanvas.getContext('2d'), startGameBtn = document.getElementById('start-game-btn');
-    let fruitGameRunning, fruitScore, player, items, fruitGameInterval;
-    function initFruitMinigame() { fruitCanvas.width = 300; fruitCanvas.height = 400; startGameBtn.style.display = 'block'; startGameBtn.onclick = () => { playSound('click'); startFruitGame(); startGameBtn.style.display = 'none'; } }
-    function startFruitGame() {
-        fruitGameRunning = true; fruitScore = 0; player = { x: fruitCanvas.width / 2 - 25, y: fruitCanvas.height - 40, width: 50, height: 20, emoji: '🧺' }; items = [];
-        fruitCanvas.addEventListener('mousemove', movePlayerMouse); fruitCanvas.addEventListener('touchmove', movePlayerTouch, { passive: false });
-        fruitGameInterval = setInterval(fruitGameLoop, 1000 / 60); setTimeout(spawnItem, 1000); 
-        setTimeout(() => { if (fruitGameRunning) endFruitGame(true); }, 20000);
-    }
-    function movePlayerMouse(e) { const rect = fruitCanvas.getBoundingClientRect(); player.x = e.clientX - rect.left - player.width / 2; }
-    function movePlayerTouch(e) { e.preventDefault(); const rect = fruitCanvas.getBoundingClientRect(); player.x = e.touches[0].clientX - rect.left - player.width / 2; }
-    function spawnItem() {
-        if (!fruitGameRunning) return; 
-        const itemType = Math.random() > 0.15 ? 'fruit' : 'bomb';
-        const fruitEmojis = ['🍎', '🍓', '🍇', '🍌', '🍒'];
-        items.push({ 
-            x: Math.random() * (fruitCanvas.width - 20), y: -20, size: 20, 
-            speed: 2 + Math.random() * 2, 
-            emoji: itemType === 'fruit' ? fruitEmojis[Math.floor(Math.random() * fruitEmojis.length)] : '💣',
-            type: itemType
-        });
-        setTimeout(spawnItem, 600 + Math.random() * 800);
-    }
-    function endFruitGame(finished) {
-        if (!fruitGameRunning) return;
-        fruitGameRunning = false; clearInterval(fruitGameInterval);
-        fruitCanvas.removeEventListener('mousemove', movePlayerMouse); fruitCanvas.removeEventListener('touchmove', movePlayerTouch);
-        if (finished) {
-            const fragmentsWon = Math.floor(fruitScore / 2); gameState.currency += fragmentsWon; updateStat('happiness', 20);
-            showNotification(`Juego terminado! Ganaste ${fragmentsWon} fragmentos.`);
-        } else {
-             showNotification(`¡Boom! Juego terminado.`);
-        }
-        DOM.minigameModal.style.display = 'none'; render();
-    }
-    function fruitGameLoop() {
-        if (!fruitGameRunning) return; fruitCtx.clearRect(0, 0, fruitCanvas.width, fruitCanvas.height); fruitCtx.font = '24px sans-serif'; fruitCtx.fillText(player.emoji, player.x, player.y + player.height);
-        for (let i = items.length - 1; i >= 0; i--) {
-            const item = items[i]; item.y += item.speed; fruitCtx.fillText(item.emoji, item.x, item.y);
-            if (item.y > player.y && item.x > player.x && item.x < player.x + player.width) { 
-                if (item.type === 'bomb') {
-                    endFruitGame(false);
-                    return;
-                }
-                fruitScore++; items.splice(i, 1); 
+        jumpAndSwap() { 
+            if (gameState === 'playing' || gameState === 'bossFight') { 
+                this.velocityY = JUMP_STRENGTH; 
+                this.isLightOnTop = !this.isLightOnTop; 
+                playSound('jump'); 
             } 
-            else if (item.y > fruitCanvas.height) { items.splice(i, 1); }
         }
-        fruitCtx.fillStyle = 'black'; fruitCtx.font = "24px 'VT323'"; fruitCtx.fillText(`Puntos: ${fruitScore}`, 10, 30);
+    }
+    let player = new Player();
+
+    // ===================================================================================
+    // OBSTÁCULOS, POWER-UPS Y ORBES
+    // ===================================================================================
+    let obstacles = [], powerUps = [], orbs = [];
+    const OBSTACLE_WIDTH = 60, OBSTACLE_GAP = 200, OBSTACLE_SPAWN_RATE = 120;
+    let obstacleSpeed = -2.5, gravity = GRAVITY;
+    let slowMoTimer = 0;
+
+    class Obstacle {
+        constructor() {
+            this.x = canvas.width; this.width = OBSTACLE_WIDTH;
+            const minGapY = OBSTACLE_GAP / 2 + 50;
+            const maxGapY = canvas.height - OBSTACLE_GAP / 2 - 50;
+            this.gapCenterY = Math.random() * (maxGapY - minGapY) + minGapY;
+            this.passed = false;
+            this.hasPowerUp = Math.random() < 0.15;
+            this.hasOrb = Math.random() < 0.05; // Orbes son más raros
+            
+            this.type = Math.random() < 0.2 && score > 10 ? 'moving' : 'static';
+            this.moveSpeed = this.type === 'moving' ? (Math.random() - 0.5) * 2 : 0;
+        }
+        update() {
+            this.x += obstacleSpeed;
+            if (this.type === 'moving') {
+                this.gapCenterY += this.moveSpeed;
+                if (this.gapCenterY < OBSTACLE_GAP / 2 || this.gapCenterY > canvas.height - OBSTACLE_GAP / 2) {
+                    this.moveSpeed *= -1;
+                }
+            }
+        }
+        draw() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(this.x, 0, this.width, this.gapCenterY - OBSTACLE_GAP / 2);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(this.x, this.gapCenterY + OBSTACLE_GAP / 2, this.width, canvas.height);
+        }
     }
 
-    const memorySymbols = ['🧠', '✨', '❤️', '🌙', '🍖', '🕹️'];
-    let memoryGameRunning, memoryTimerInterval, timeLeft, flippedCards, matchedPairs, canFlip;
-    function initMemoryGame() { DOM.startMemoryGameBtn.style.display = 'block'; DOM.memoryGameBoard.innerHTML = 'Prepara tu memoria...'; DOM.startMemoryGameBtn.onclick = () => { playSound('click'); startMemoryGame(); DOM.startMemoryGameBtn.style.display = 'none'; }; }
-    function startMemoryGame() {
-        memoryGameRunning = true; flippedCards = []; matchedPairs = 0; canFlip = true; timeLeft = 30;
-        DOM.memoryTimer.textContent = `Tiempo: ${timeLeft}`; DOM.memoryPairs.textContent = `Pares: 0/6`;
-        const cards = [...memorySymbols, ...memorySymbols]; cards.sort(() => 0.5 - Math.random()); DOM.memoryGameBoard.innerHTML = '';
-        cards.forEach(symbol => {
-            const card = document.createElement('div'); card.className = 'card'; card.dataset.symbol = symbol;
-            card.innerHTML = `<div class="card-inner"><div class="card-face card-front"></div><div class="card-face card-back">${symbol}</div></div>`;
-            card.addEventListener('click', () => handleCardClick(card)); DOM.memoryGameBoard.appendChild(card);
-        });
-        memoryTimerInterval = setInterval(() => { timeLeft--; DOM.memoryTimer.textContent = `Tiempo: ${timeLeft}`; if (timeLeft <= 0) { endMemoryGame(false); } }, 1000);
-    }
-    function handleCardClick(card) {
-        if (!canFlip || card.classList.contains('flipped') || !memoryGameRunning) return;
-        playSound('click'); card.classList.add('flipped'); flippedCards.push(card);
-        if (flippedCards.length === 2) { canFlip = false; setTimeout(checkForMatch, 800); }
-    }
-    function checkForMatch() {
-        const [card1, card2] = flippedCards;
-        if (card1.dataset.symbol === card2.dataset.symbol) {
-            playSound('statUp'); card1.classList.add('matched'); card2.classList.add('matched');
-            matchedPairs++; DOM.memoryPairs.textContent = `Pares: ${matchedPairs}/6`;
-            if (matchedPairs === 6) { endMemoryGame(true); }
-        } else { card1.classList.remove('flipped'); card2.classList.remove('flipped'); }
-        flippedCards = []; canFlip = true;
-    }
-    function endMemoryGame(won) {
-        clearInterval(memoryTimerInterval); memoryGameRunning = false;
-        if (won) {
-            playSound('buy'); const fragmentsWon = 30; gameState.currency += fragmentsWon;
-            updateStat('happiness', 25); showNotification(`¡Ganaste! Recibes ${fragmentsWon} fragmentos.`);
-        } else { showNotification('Se acabó el tiempo. ¡Inténtalo de nuevo!'); }
-        DOM.memoryGameModal.style.display = 'none'; render();
-    }
-    
-    const carCanvas = document.getElementById('car-game-canvas'), carCtx = carCanvas.getContext('2d'), startCarGameBtn = document.getElementById('start-car-game-btn');
-    let carGameRunning, playerCar, obstacles, carGameScore, carGameInterval, keys = {};
-    function initCarGame() {
-        carCanvas.width = 300; carCanvas.height = 400;
-        startCarGameBtn.style.display = 'block';
-        startCarGameBtn.onclick = () => { playSound('click'); startCarGame(); startCarGameBtn.style.display = 'none'; };
-    }
-    function startCarGame() {
-        carGameRunning = true; carGameScore = 0;
-        playerCar = { x: carCanvas.width / 2 - 15, y: carCanvas.height - 60, width: 30, height: 50, color: '#fefcbf', shielded: false };
-        obstacles = []; keys = {};
-        document.addEventListener('keydown', (e) => keys[e.key] = true);
-        document.addEventListener('keyup', (e) => keys[e.key] = false);
-        carGameInterval = setInterval(carGameLoop, 1000 / 60);
-        spawnObstacle();
-    }
-    function spawnObstacle() {
-        if (!carGameRunning) return;
-        const itemType = Math.random() > 0.1 ? 'obstacle' : 'shield';
-        const obstacleWidth = 30;
-        const lane = Math.floor(Math.random() * 3); // 3 lanes
-        const xPos = carCanvas.width / 2 + (lane - 1) * 50 - obstacleWidth / 2;
-        obstacles.push({ x: xPos, y: -50, width: obstacleWidth, height: 50, speed: 2 + Math.random() * (2 + carGameScore / 200), type: itemType });
-        setTimeout(spawnObstacle, 1200 / (1 + carGameScore / 500));
-    }
-    function endCarGame() {
-        carGameRunning = false; clearInterval(carGameInterval);
-        document.removeEventListener('keydown', (e) => keys[e.key] = true);
-        document.removeEventListener('keyup', (e) => keys[e.key] = false);
-        const fragmentsWon = Math.floor(carGameScore / 10);
-        gameState.currency += fragmentsWon; updateStat('happiness', 15);
-        DOM.carGameModal.style.display = 'none';
-        showNotification(`¡Choque! Puntos: ${carGameScore}. Ganaste ${fragmentsWon} fragmentos.`);
-        render();
-    }
-    function checkCollision(rect1, rect2) {
-        return rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x &&
-               rect1.y < rect2.y + rect2.height && rect1.y + rect1.height > rect2.y;
-    }
-    function carGameLoop() {
-        if (!carGameRunning) return;
-        if (keys['ArrowLeft'] && playerCar.x > carCanvas.width * 0.15) playerCar.x -= 4;
-        if (keys['ArrowRight'] && playerCar.x < carCanvas.width * 0.85 - playerCar.width) playerCar.x += 4;
-        
-        carCtx.clearRect(0, 0, carCanvas.width, carCanvas.height);
-        carCtx.fillStyle = '#cbd5e0';
-        for (let i = -50; i < carCanvas.height; i += 20) {
-            carCtx.fillRect(carCanvas.width / 2 - 32, i + (Date.now() / 4) % 40, 4, 20);
-            carCtx.fillRect(carCanvas.width / 2 + 28, i + (Date.now() / 4) % 40, 4, 20);
+    class PowerUp {
+        constructor(x, y, type) { this.x = x; this.y = y; this.type = type; this.radius = 12; }
+        update() { this.x += obstacleSpeed; }
+        draw() {
+            ctx.save();
+            ctx.translate(this.x, this.y);
+            ctx.rotate(frameCount * 0.05);
+            if (this.type === 'shield') {
+                ctx.fillStyle = 'rgba(76, 209, 255, 0.8)';
+                ctx.fillRect(-this.radius, -this.radius, this.radius * 2, this.radius * 2);
+            } else { // slowmo
+                ctx.fillStyle = 'rgba(255, 191, 0, 0.8)';
+                ctx.beginPath();
+                ctx.moveTo(0, -this.radius);
+                ctx.lineTo(this.radius, this.radius);
+                ctx.lineTo(-this.radius, this.radius);
+                ctx.closePath();
+                ctx.fill();
+            }
+            ctx.restore();
         }
-        carCtx.fillStyle = playerCar.color; carCtx.fillRect(playerCar.x, playerCar.y, playerCar.width, playerCar.height);
-        if(playerCar.shielded) {
-            carCtx.strokeStyle = '#63B3ED'; carCtx.lineWidth = 3;
-            carCtx.strokeRect(playerCar.x-5, playerCar.y-5, playerCar.width+10, playerCar.height+10);
+    }
+
+    class Orb {
+        constructor(x, y) { this.x = x; this.y = y; this.radius = 10; }
+        update() { this.x += obstacleSpeed; }
+        draw() {
+            const gradient = ctx.createRadialGradient(this.x, this.y, this.radius * 0.2, this.x, this.y, this.radius);
+            gradient.addColorStop(0, `hsl(${frameCount % 360}, 100%, 70%)`);
+            gradient.addColorStop(1, `hsl(${(frameCount + 180) % 360}, 100%, 50%)`);
+            ctx.fillStyle = gradient;
+            ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
+    function handleObstacles() {
+        if (frameCount % OBSTACLE_SPAWN_RATE === 0) {
+            const newObstacle = new Obstacle();
+            obstacles.push(newObstacle);
+            if (newObstacle.hasPowerUp && !newObstacle.hasOrb) {
+                powerUps.push(new PowerUp(newObstacle.x + OBSTACLE_WIDTH / 2, newObstacle.gapCenterY, Math.random() < 0.5 ? "shield" : "slowmo"));
+            }
+            if (newObstacle.hasOrb) {
+                orbs.push(new Orb(newObstacle.x + OBSTACLE_WIDTH / 2, newObstacle.gapCenterY));
+            }
         }
 
         for (let i = obstacles.length - 1; i >= 0; i--) {
-            const obs = obstacles[i];
-            obs.y += obs.speed;
-            if(obs.type === 'obstacle') {
-                carCtx.fillStyle = `hsl(${obs.y % 360}, 50%, 60%)`; 
-                carCtx.fillRect(obs.x, obs.y, obs.width, obs.height);
-            } else {
-                 carCtx.font = '24px sans-serif'; carCtx.fillText('🛡️', obs.x, obs.y + obs.height/2);
-            }
-            if (checkCollision(playerCar, obs)) { 
-                if(obs.type === 'shield') {
-                    playerCar.shielded = true;
-                    obstacles.splice(i,1);
-                    playSound('statUp');
-                    setTimeout(() => playerCar.shielded = false, 5000);
-                } else if (!playerCar.shielded) {
-                    endCarGame(); return; 
+            obstacles[i].update();
+            if (!obstacles[i].passed && obstacles[i].x + obstacles[i].width < player.x) {
+                score++;
+                obstacles[i].passed = true;
+                playSound("score");
+                if (score > 10 && score % 5 == 0 && obstacleSpeed > -5) {
+                    obstacleSpeed -= 0.25;
                 }
             }
-            if (obs.y > carCanvas.height) { obstacles.splice(i, 1); carGameScore += 10; }
         }
-        carCtx.fillStyle = 'white'; carCtx.font = "24px 'VT323'"; carCtx.fillText(`Puntos: ${carGameScore}`, 10, 30);
+        obstacles = obstacles.filter(o => o.x + o.width > 0);
     }
     
-    let bugGameRunning, bugTimerInterval, bugTimeLeft, currentBugScore, bugGameTimeout;
-    function initBugCatcherGame() {
-        DOM.startBugGameBtn.style.display = 'block';
-        DOM.bugCatcherBoard.innerHTML = '';
-         for (let i = 0; i < 9; i++) {
-            const hole = document.createElement('div');
-            hole.className = 'bug-catcher-hole';
-            const bug = document.createElement('div');
-            bug.className = 'bug-catcher-bug';
-            hole.appendChild(bug);
-            DOM.bugCatcherBoard.appendChild(hole);
+    function handleCollectibles() {
+        // PowerUps
+        for (let i = powerUps.length - 1; i >= 0; i--) {
+            powerUps[i].update();
+            const dist = Math.hypot(player.x - powerUps[i].x, player.y - powerUps[i].y);
+            if (dist < player.radius + powerUps[i].radius) {
+                activatePowerUp(powerUps[i].type);
+                powerUps.splice(i, 1);
+            }
         }
-        DOM.startBugGameBtn.onclick = () => { playSound('click'); startBugCatcherGame(); DOM.startBugGameBtn.style.display = 'none'; };
-    }
-    function startBugCatcherGame() {
-        bugGameRunning = true; bugTimeLeft = 20; currentBugScore = 0;
-        DOM.bugTimer.textContent = `Tiempo: ${bugTimeLeft}`; DOM.bugScore.textContent = `Puntos: ${currentBugScore}`;
-        const bugs = document.querySelectorAll('.bug-catcher-bug');
-        bugs.forEach(bug => bug.addEventListener('click', whackBug));
-        bugTimerInterval = setInterval(() => {
-            bugTimeLeft--;
-            DOM.bugTimer.textContent = `Tiempo: ${bugTimeLeft}`;
-            if (bugTimeLeft <= 0) endBugCatcherGame();
-        }, 1000);
-        popBug();
-    }
-    function popBug() {
-        if (!bugGameRunning) return;
-        const bugs = document.querySelectorAll('.bug-catcher-bug');
-        const randomBug = bugs[Math.floor(Math.random() * bugs.length)];
-        randomBug.textContent = Math.random() > 0.2 ? '🐞' : '🦋';
-        randomBug.classList.add('up');
-        setTimeout(() => {
-            randomBug.classList.remove('up');
-            popBug();
-        }, 500 + Math.random() * 700);
-    }
-    function whackBug(e) {
-        if (!e.target.classList.contains('up')) return;
-        if(e.target.textContent === '🐞') {
-            currentBugScore += 10; playSound('click');
-        } else {
-            currentBugScore -= 20; playSound('hatch');
+        powerUps = powerUps.filter(p => p.x + p.radius > 0);
+
+        // Orbes
+        for (let i = orbs.length - 1; i >= 0; i--) {
+            orbs[i].update();
+            const dist = Math.hypot(player.x - orbs[i].x, player.y - orbs[i].y);
+            if (dist < player.radius + orbs[i].radius) {
+                totalOrbs++;
+                playSound('powerup');
+                orbs.splice(i, 1);
+            }
         }
-        DOM.bugScore.textContent = `Puntos: ${currentBugScore}`;
-        e.target.classList.remove('up');
+        orbs = orbs.filter(o => o.x + o.radius > 0);
     }
-    function endBugCatcherGame() {
-        bugGameRunning = false;
-        clearInterval(bugTimerInterval);
-        const fragmentsWon = Math.floor(currentBugScore / 5);
-        gameState.currency += fragmentsWon;
-        updateStat('happiness', 15);
-        DOM.bugCatcherModal.style.display = 'none';
-        showNotification(`¡Se acabó! Puntos: ${currentBugScore}. Ganaste ${fragmentsWon} fragmentos.`);
-        render();
+
+    function activatePowerUp(type) {
+        playSound("powerup");
+        if (type === "shield") {
+            player.isShielded = true;
+            player.shieldTimer = 300; // 5 seconds
+        } else if (type === "slowmo") {
+            slowMoTimer = 300;
+        }
     }
-    
-    const starExampleCanvas = document.getElementById('star-example-canvas'), starExampleCtx = starExampleCanvas.getContext('2d');
-    const starGameCanvas = document.getElementById('star-game-canvas'), starGameCtx = starGameCanvas.getContext('2d');
-    let currentConstellation, userLines, isStarDrawing;
-    function initStarGame() {
-        [starExampleCanvas, starGameCanvas].forEach(c => { c.width = 150; c.height = 150; });
-        DOM.startStarGameBtn.onclick = () => { playSound('click'); startNewStarGame(); };
-        starGameCanvas.addEventListener('mousedown', startStarDraw);
-        starGameCanvas.addEventListener('mousemove', starDraw);
-        starGameCanvas.addEventListener('mouseup', endStarDraw);
-        startNewStarGame();
+
+    function updateTimers() {
+        if (slowMoTimer > 0) {
+            slowMoTimer--;
+            const factor = 0.5;
+            obstacleSpeed = -2.5 * factor;
+            gravity = GRAVITY * factor;
+            if (slowMoTimer === 0) {
+                obstacleSpeed = -2.5 - (0.25 * Math.floor(score / 5));
+                gravity = GRAVITY;
+            }
+        }
     }
-    function startNewStarGame() {
-        const constellations = [
-            { points: [{x:30,y:30},{x:120,y:30},{x:75,y:100}], lines: [[0,1],[1,2],[2,0]] },
-            { points: [{x:30,y:120},{x:50,y:50},{x:100,y:50},{x:120,y:120}], lines: [[0,1],[1,2],[2,3]] }
-        ];
-        currentConstellation = constellations[Math.floor(Math.random() * constellations.length)];
-        userLines = [];
-        isStarDrawing = false;
-        drawConstellation(starExampleCtx, currentConstellation.points, currentConstellation.lines, true);
-        drawConstellation(starGameCtx, currentConstellation.points, userLines, false);
-        DOM.starGameMessage.textContent = 'Copia la constelación de la izquierda.';
+
+    // ===================================================================================
+    // JEFE FINAL
+    // ===================================================================================
+    let boss;
+    class Boss {
+        constructor() {
+            this.x = canvas.width - 100; this.y = canvas.height / 2; this.width = 80; this.height = 200;
+            this.health = 10; this.maxHealth = 10; this.attackTimer = 0; this.weakPoint = null;
+        }
+        update() {
+            this.y = canvas.height / 2 + Math.sin(frameCount / 60) * (canvas.height / 4);
+            this.attackTimer++;
+            if (this.attackTimer % 120 === 0) {
+                const type = Math.random() < 0.5 ? 'light' : 'shadow';
+                const weakPointY = this.y + (Math.random() - 0.5) * this.height * 0.8;
+                this.weakPoint = { x: this.x, y: weakPointY, type: type, radius: 20, active: true };
+            }
+        }
+        draw() {
+            const gradient = ctx.createLinearGradient(this.x, this.y - this.height / 2, this.x, this.y + this.height / 2);
+            gradient.addColorStop(0, "white"); gradient.addColorStop(0.5, "grey"); gradient.addColorStop(1, "black");
+            ctx.fillStyle = gradient;
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+            if (this.weakPoint && this.weakPoint.active) {
+                ctx.fillStyle = this.weakPoint.type === 'light' ? 'white' : 'black';
+                ctx.strokeStyle = this.weakPoint.type === 'light' ? 'black' : 'white';
+                ctx.lineWidth = 2; ctx.beginPath();
+                ctx.arc(this.weakPoint.x, this.weakPoint.y, this.weakPoint.radius, 0, Math.PI * 2);
+                ctx.fill(); ctx.stroke();
+            }
+            ctx.fillStyle = 'red';
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2 - 20, this.width, 10);
+            ctx.fillStyle = 'green';
+            const healthWidth = (this.health / this.maxHealth) * this.width;
+            ctx.fillRect(this.x - this.width / 2, this.y - this.height / 2 - 20, healthWidth, 10);
+        }
+        takeDamage() {
+            this.health--;
+            this.weakPoint.active = false;
+            shakeDuration = 10;
+            if (this.health <= 0) {
+                gameState = 'victory';
+                for (let i = 0; i < 200; i++) {
+                    particles.push(new Particle(this.x, this.y, Math.random() * 5, `hsl(${Math.random() * 360}, 100%, 50%)`, true));
+                }
+            }
+        }
     }
-    function drawConstellation(ctx, points, lines, drawLines) {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.fillStyle = 'white';
-        points.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI * 2); ctx.fill(); });
-        if (drawLines) {
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; ctx.lineWidth = 2;
-            lines.forEach(line => {
-                ctx.beginPath();
-                ctx.moveTo(points[line[0]].x, points[line[0]].y);
-                ctx.lineTo(points[line[1]].x, points[line[1]].y);
-                ctx.stroke();
+    function handleBoss() {
+        boss.update();
+        if (boss.weakPoint && boss.weakPoint.active) {
+            const lightY = player.isLightOnTop ? player.y - PARTICLE_DISTANCE : player.y + PARTICLE_DISTANCE;
+            const shadowY = player.isLightOnTop ? player.y + PARTICLE_DISTANCE : player.y - PARTICLE_DISTANCE;
+            const lightParticle = { x: player.x, y: lightY, radius: player.radius };
+            const shadowParticle = { x: player.x, y: shadowY, radius: player.radius };
+            const weakPoint = boss.weakPoint;
+            if (weakPoint.type === 'light' && isCircleCollidingWithRect(lightParticle, { x: weakPoint.x - weakPoint.radius, y: weakPoint.y - weakPoint.radius, width: weakPoint.radius * 2, height: weakPoint.radius * 2 })) {
+                boss.takeDamage();
+            }
+            if (weakPoint.type === 'shadow' && isCircleCollidingWithRect(shadowParticle, { x: weakPoint.x - weakPoint.radius, y: weakPoint.y - weakPoint.radius, width: weakPoint.radius * 2, height: weakPoint.radius * 2 })) {
+                boss.takeDamage();
+            }
+        }
+    }
+
+    // ===================================================================================
+    // EFECTOS VISUALES
+    // ===================================================================================
+    let particles = [], shakeDuration = 0, shakeIntensity = 5, backgroundLayers = [];
+    class Particle {
+        constructor(x, y, radius, color, isExplosion = false) {
+            this.x = x; this.y = y; this.radius = radius; this.color = color; this.alpha = 1; this.isExplosion = isExplosion;
+            if (isExplosion) {
+                this.vx = (Math.random() - 0.5) * 10;
+                this.vy = (Math.random() - 0.5) * 10;
+            }
+        }
+        draw() {
+            ctx.save(); ctx.globalAlpha = this.alpha; ctx.fillStyle = this.color; ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        }
+        update() {
+            if (this.isExplosion) {
+                this.x += this.vx; this.y += this.vy; this.alpha -= 0.01;
+            } else {
+                this.x += obstacleSpeed; this.alpha -= 0.03;
+            }
+        }
+    }
+    function handleParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw();
+            if (particles[i].alpha <= 0) particles.splice(i, 1);
+        }
+    }
+    function applyShake() {
+        if (shakeDuration > 0) {
+            ctx.save();
+            const dx = (Math.random() - 0.5) * shakeIntensity;
+            const dy = (Math.random() - 0.5) * shakeIntensity;
+            ctx.translate(dx, dy);
+            shakeDuration--;
+        }
+    }
+    function setupBackground() {
+        backgroundLayers = [];
+        const layerSpeeds = [0.1, 0.2, 0.3];
+        const layerCounts = [50, 40, 30];
+        for (let i = 0; i < layerSpeeds.length; i++) {
+            let stars = [];
+            for (let j = 0; j < layerCounts[i]; j++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * (i + 1),
+                    speed: layerSpeeds[i]
+                });
+            }
+            backgroundLayers.push(stars);
+        }
+    }
+    function handleBackground() {
+        backgroundLayers.forEach(layer => {
+            layer.forEach(star => {
+                star.x += obstacleSpeed * star.speed;
+                if (star.x < 0) star.x = canvas.width;
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + star.radius * 0.2})`;
+                ctx.beginPath(); ctx.arc(star.x, star.y, star.radius, 0, 2 * Math.PI); ctx.fill();
             });
-        }
+        });
     }
-    function startStarDraw(e) {
-        const rect = starGameCanvas.getBoundingClientRect();
-        const startPoint = findStarNear(e.clientX - rect.left, e.clientY - rect.top);
-        if (startPoint !== null) {
-            isStarDrawing = true;
-            userLines.push({ start: startPoint, end: null });
-        }
-    }
-    function starDraw(e) { /* Could be implemented for line preview */ }
-    function endStarDraw(e) {
-        if (!isStarDrawing) return;
-        const rect = starGameCanvas.getBoundingClientRect();
-        const endPoint = findStarNear(e.clientX - rect.left, e.clientY - rect.top);
-        const currentLine = userLines[userLines.length - 1];
 
-        if (endPoint !== null && endPoint !== currentLine.start) {
-            currentLine.end = endPoint;
-            drawUserLines();
-            checkStarWin();
+    // ===================================================================================
+    // LÓGICA DE JUEGO PRINCIPAL
+    // ===================================================================================
+    function checkCollisions() {
+        if (player.isShielded || gameState !== 'playing') return;
+        const lightY = player.isLightOnTop ? player.y - PARTICLE_DISTANCE : player.y + PARTICLE_DISTANCE;
+        const shadowY = player.isLightOnTop ? player.y + PARTICLE_DISTANCE : player.y - PARTICLE_DISTANCE;
+        for (let o of obstacles) {
+            const topR = { x: o.x, y: 0, width: o.width, height: o.gapCenterY - OBSTACLE_GAP / 2 };
+            const botR = { x: o.x, y: o.gapCenterY + OBSTACLE_GAP / 2, width: o.width, height: canvas.height };
+            if (isCircleCollidingWithRect({ x: player.x, y: shadowY, radius: player.radius }, topR) ||
+                isCircleCollidingWithRect({ x: player.x, y: lightY, radius: player.radius }, botR)) {
+                gameOver();
+            }
+        }
+    }
+    function isCircleCollidingWithRect(circle, rect) {
+        let testX = circle.x; let testY = circle.y;
+        if (circle.x < rect.x) testX = rect.x;
+        else if (circle.x > rect.x + rect.width) testX = rect.x + rect.width;
+        if (circle.y < rect.y) testY = rect.y;
+        else if (circle.y > rect.y + rect.height) testY = rect.y + rect.height;
+        const distance = Math.sqrt((circle.x - testX) ** 2 + (circle.y - testY) ** 2);
+        return distance <= circle.radius;
+    }
+    function startGame() { gameState = "playing"; player.jumpAndSwap(); }
+    function gameOver() {
+        if (gameState !== 'gameOver') {
+            gameState = 'gameOver';
+            shakeDuration = 20;
+            playSound('gameOver');
+            saveGameData();
+        }
+    }
+    function resetGame() {
+        loadGameData();
+        player = new Player();
+        obstacles = []; particles = []; powerUps = []; orbs = [];
+        score = 0; frameCount = 0; slowMoTimer = 0;
+        obstacleSpeed = -2.5; gravity = GRAVITY;
+        boss = null;
+        gameState = 'start';
+    }
+
+    // ===================================================================================
+    // INTERFAZ DE USUARIO (UI)
+    // ===================================================================================
+    let shopButtons = {};
+    function setupShopUI() {
+        shopButtons = {};
+        let i = 0;
+        for (const skinId in SKINS) {
+            shopButtons[skinId] = {
+                x: 50, y: 150 + i * 100, width: canvas.width - 100, height: 80, id: skinId
+            };
+            i++;
+        }
+        shopButtons['back'] = { x: canvas.width / 2 - 50, y: 500, width: 100, height: 40 };
+    }
+    function drawUI() {
+        ctx.fillStyle = 'white'; ctx.textAlign = 'center';
+        if (gameState === 'start') {
+            ctx.font = '30px Arial';
+            ctx.fillText('Eco-Shift', canvas.width / 2, canvas.height / 2 - 100);
+            ctx.font = '20px Arial';
+            ctx.fillText('Pulsa para Empezar', canvas.width / 2, canvas.height / 2 - 50);
+            ctx.font = '16px Arial';
+            ctx.fillText(`Mejor Puntuación: ${highScore}`, canvas.width / 2, canvas.height / 2);
+            ctx.fillText(`Orbes: ${totalOrbs}`, canvas.width - 70, 40);
+            ctx.strokeStyle = 'white';
+            ctx.strokeRect(canvas.width / 2 - 80, canvas.height / 2 + 40, 160, 40);
+            ctx.font = '20px Arial';
+            ctx.fillText('Personalizar', canvas.width / 2, canvas.height / 2 + 67);
+
+        } else if (gameState === 'shop') {
+            ctx.font = '30px Arial';
+            ctx.fillText('Tienda de Aspectos', canvas.width / 2, 80);
+            ctx.font = '20px Arial';
+            ctx.fillText(`Orbes: ${totalOrbs}`, canvas.width / 2, 120);
+            for (const key in shopButtons) {
+                if (key === 'back') continue;
+                const btn = shopButtons[key];
+                const skin = SKINS[btn.id];
+                ctx.strokeStyle = selectedSkin === btn.id ? 'lime' : 'white';
+                ctx.lineWidth = selectedSkin === btn.id ? 3 : 1;
+                ctx.strokeRect(btn.x, btn.y, btn.width, btn.height);
+                SKINS[btn.id].draw(ctx, btn.x + 40, btn.y + 40, 15, true);
+                SKINS[btn.id].draw(ctx, btn.x + 80, btn.y + 40, 15, false);
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText(btn.id.charAt(0).toUpperCase() + btn.id.slice(1), btn.x + 120, btn.y + 35);
+                ctx.font = '16px Arial';
+                if (!unlockedSkins.includes(btn.id)) {
+                    ctx.fillStyle = totalOrbs >= skin.price ? 'white' : 'red';
+                }
+                ctx.fillText(unlockedSkins.includes(btn.id) ? (selectedSkin === btn.id ? "Equipado" : "Seleccionar") : `Costo: ${skin.price}`, btn.x + 120, btn.y + 60);
+                ctx.fillStyle = 'white';
+                ctx.textAlign = 'center';
+            }
+            const backBtn = shopButtons['back'];
+            ctx.strokeStyle = 'white'; ctx.lineWidth = 1;
+            ctx.strokeRect(backBtn.x, backBtn.y, backBtn.width, backBtn.height);
+            ctx.font = '20px Arial'; ctx.fillText('Volver', canvas.width / 2, backBtn.y + 27);
+
+        } else if (gameState === 'victory') {
+            ctx.font = '40px Arial';
+            ctx.fillText('¡VICTORIA!', canvas.width / 2, canvas.height / 2);
+            ctx.font = '20px Arial';
+            ctx.fillText(`Puntuación Final: ${score}`, canvas.width / 2, canvas.height / 2 + 40);
         } else {
-            userLines.pop(); // Invalid line, remove it
+            ctx.font = '60px Arial';
+            ctx.fillText(score, canvas.width / 2, 80);
         }
-        isStarDrawing = false;
-    }
-    function findStarNear(x, y) {
-        let nearest = null; let minDist = 15;
-        currentConstellation.points.forEach((p, index) => {
-            const dist = Math.sqrt((p.x - x)**2 + (p.y - y)**2);
-            if (dist < minDist) {
-                minDist = dist; nearest = index;
-            }
-        });
-        return nearest;
-    }
-    function drawUserLines() {
-        drawConstellation(starGameCtx, currentConstellation.points, [], false);
-        starGameCtx.strokeStyle = '#63B3ED'; starGameCtx.lineWidth = 3;
-        userLines.forEach(line => {
-            if (line.end !== null) {
-                const p1 = currentConstellation.points[line.start];
-                const p2 = currentConstellation.points[line.end];
-                starGameCtx.beginPath();
-                starGameCtx.moveTo(p1.x, p1.y);
-                starGameCtx.lineTo(p2.x, p2.y);
-                starGameCtx.stroke();
-            }
-        });
-    }
-    function checkStarWin() {
-        if (userLines.length !== currentConstellation.lines.length) return;
-        const userLineSet = new Set(userLines.map(l => [l.start, l.end].sort().join('-')));
-        const solutionLineSet = new Set(currentConstellation.lines.map(l => l.sort().join('-')));
-        if (userLineSet.size === solutionLineSet.size && [...userLineSet].every(val => solutionLineSet.has(val))) {
-            const fragmentsWon = 50; gameState.currency += fragmentsWon;
-            updateStat('happiness', 30);
-            DOM.starGameMessage.textContent = `¡Perfecto! Ganaste ${fragmentsWon} fragmentos.`;
-            playSound('buy');
-        }
-    }
-
-    // =================================================================================
-    // SECTION: INICIALIZACIÓN Y GUARDADO
-    // =================================================================================
-    function saveGame() {
-        localStorage.setItem('aetherpet_save', JSON.stringify(gameState));
-    }
-
-    function loadGame() {
-        const savedState = localStorage.getItem('aetherpet_save');
-        if (savedState) {
-            const parsedState = JSON.parse(savedState);
-            const keys = gameState.chat.keys; // Preserve the hardcoded keys
-            gameState = parsedState;
-            gameState.chat.keys = keys;
-            // Ensure new properties from updates exist
-            if (!gameState.realWorld) {
-                gameState.realWorld = { weather: 'Despejado', fact: 'Los pulpos tienen tres corazones.' };
-            }
-            if(gameState.pet.eggCracks === undefined) {
-                gameState.pet.eggCracks = 0;
-            }
+        if (gameState === 'gameOver') {
+            ctx.font = '40px Arial'; ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2 - 20);
+            ctx.font = '20px Arial'; ctx.fillText('Pulsa para Reiniciar', canvas.width / 2, canvas.height / 2 + 20);
+            ctx.font = '16px Arial'; ctx.fillText(`Mejor Puntuación: ${highScore}`, canvas.width / 2, canvas.height / 2 + 60);
         }
     }
     
-    function initialize() {
-        loadGame();
-        const startAudio = async () => { await Tone.start(); document.body.removeEventListener('click', startAudio); };
-        document.body.addEventListener('click', startAudio);
-        fetchRealWorldInfo(); // Initial fetch
-        render(); populateShop(); setInterval(gameTick, config.tickRate);
+    // ===================================================================================
+    // MANEJO DE INPUT
+    // ===================================================================================
+    function handleInput(e) {
+        if (!soundEnabled) initAudio();
+        
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        switch (gameState) {
+            case 'start':
+                if (mouseX > canvas.width / 2 - 80 && mouseX < canvas.width / 2 + 80 && mouseY > canvas.height / 2 + 40 && mouseY < canvas.height / 2 + 80) {
+                    gameState = 'shop';
+                    setupShopUI();
+                } else {
+                    startGame();
+                }
+                break;
+            case 'shop':
+                for (const key in shopButtons) {
+                    const btn = shopButtons[key];
+                    if (mouseX > btn.x && mouseX < btn.x + btn.width && mouseY > btn.y && mouseY < btn.y + btn.height) {
+                        if (key === 'back') {
+                             gameState = 'start';
+                        } else {
+                            if (unlockedSkins.includes(btn.id)) {
+                                selectedSkin = btn.id;
+                            } else if (totalOrbs >= SKINS[btn.id].price) {
+                                totalOrbs -= SKINS[btn.id].price;
+                                unlockedSkins.push(btn.id);
+                                selectedSkin = btn.id;
+                            }
+                            saveGameData();
+                        }
+                        return;
+                    }
+                }
+                break;
+            case 'playing': case 'bossFight': player.jumpAndSwap(); break;
+            case 'gameOver': case 'victory': resetGame(); saveGameData(); break;
+        }
+    }
+    window.addEventListener('keydown', (e) => e.code === 'Space' && handleInput({ clientX: 0, clientY: 0 }));
+    canvas.addEventListener('mousedown', handleInput);
+
+    // ===================================================================================
+    // BUCLES PRINCIPALES (UPDATE & DRAW)
+    // ===================================================================================
+    function update() {
+        frameCount++;
+        if (gameState === 'playing') {
+            updateTimers();
+            player.update();
+            handleObstacles();
+            handleCollectibles();
+            checkCollisions();
+            if (score >= BOSS_TRIGGER_SCORE && !boss) {
+                gameState = 'bossFight';
+                boss = new Boss();
+                obstacles = []; powerUps = []; orbs = [];
+            }
+        } else if (gameState === 'bossFight') {
+            player.update();
+            handleBoss();
+        } else if (gameState === 'victory') {
+            handleParticles(); // Permite que la explosión se anime
+        }
     }
 
-    initialize();
-</script>
+    function draw() {
+        if (gameState === 'victory') {
+            ctx.fillStyle = `hsl(${frameCount % 360}, 50%, 15%)`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        
+        applyShake();
+        if (gameState !== 'victory') handleBackground();
+        
+        if (gameState === 'playing' || gameState === 'gameOver' || gameState === 'bossFight') {
+            orbs.forEach(o => o.draw());
+            obstacles.forEach(o => o.draw());
+            powerUps.forEach(p => p.draw());
+            player.draw();
+        }
+        if (gameState === 'bossFight') {
+            boss.draw();
+        }
+        
+        handleParticles();
+        drawUI();
+        if (shakeDuration > 0) ctx.restore();
+    }
+
+    // Iniciar el juego
+    setupBackground();
+    resetGame();
+    gameLoop();
+    </script>
 </body>
 </html>
+
+
 
